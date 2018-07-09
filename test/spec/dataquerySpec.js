@@ -823,15 +823,54 @@ describe('DataQuery functions', function () {
     });
 
     describe('bitwiseAnd', function () {
+        it('$q.bitwiseAnd should be a function', function () {
+            expect($q.bitwiseAnd).toEqual(jasmine.any(Function));
+        });
+
+        it('$q.bitwiseAnd should return a function', function () {
+            var x = 1,
+                y = 2,
+                f = $q.bitwiseAnd(x, y);
+            expect(f).toEqual(jasmine.any(Function));
+        });
+
+        fit('bitwiseAnd of same value should return 1', function () {
+            var x = {a: 1, b: 2},
+                y = {a: 3, b: 3},
+                //operand1 = $q.field('a'),
+                //operand2 = $q.field('b'),
+                //operand3 = $q.field('c'),
+                f = $q.bitwiseAnd(1, $q.field('a'));
+            expect(f(x)).toBe(1);
+        });
         
     });
 
     describe('bitwiseOr', function () {
+        it('$q.bitwiseOr should be a function', function () {
+            expect($q.bitwiseOr).toEqual(jasmine.any(Function));
+        });
+
+        it('$q.bitwiseOr should return a function', function () {
+            var x = 1,
+                y = 2,
+                f = $q.bitwiseOr(x, y);
+            expect(f).toEqual(jasmine.any(Function));
+        });
         
     });
 
     describe('bitwiseXor', function () {
-        
+        it('$q.bitwiseXor should be a function', function () {
+            expect($q.bitwiseXor).toEqual(jasmine.any(Function));
+        });
+
+        it('$q.bitwiseXor should return a function', function () {
+            var x = 1,
+                y = 2,
+                f = $q.bitwiseXor(x, y);
+            expect(f).toEqual(jasmine.any(Function));
+        });
     });
 
     
