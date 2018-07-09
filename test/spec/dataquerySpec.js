@@ -437,6 +437,59 @@ describe('DataQuery functions', function () {
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.field('a'), $q.constant(1))), undefined);
             expect(f()).toBeFalsy();
         });
+
+        it('and of a series of function including one null and one false gives false', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.and($q.like('a', 'AAB_CC'), $q.eq('q', 1), null, $q.constant(false));
+            expect(f.isFalse).toBe(true);
+        });
+
+        it('and of a series of function including one null and one false gives false (by array)', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                cond1 = $q.like('a', 'AAB_CC'),
+                cond2 = $q.eq('q', 1),
+                cond3 = $q.constant(false),
+                f = $q.and([cond1, cond2, null, cond3]);
+            expect(f.isFalse).toBe(true);
+            cond3 = $q.constant(true);
+            expect(f.isFalse).toBe(true);
+
+        });
+
+        it('and of a series of function including one null and one dinamically-false gives false', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.and($q.like('a', 'AAB_CC'), $q.eq('q', 2), null);
+            expect(f(xx)).toBe(false);
+        });
+
+        it('and of a series of function including one null and one dinamically-false gives false (by array)', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                cond1 = $q.like('a', 'AAB_CC'),
+                cond2 = $q.eq('q', 2),
+                f = $q.and([cond1, cond2, null]);
+            expect(f(xx)).toBe(false);
+            cond2 = $q.eq('q', '1');
+            expect(f(xx)).toBe(false);
+        });
+
+        it('and of a series of function in a null context with an always false function gives false', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant('q'), 2), null);
+            expect(f()).toBe(false);
+        });
+
+        it('AND of a series of function in a null context with an always false function gives false', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(3), $q.constant(1))), null);
+            expect(f()).toBe(false);
+        });
+
+        it('AND of a series of function in a null context with an always false function gives false constant fun', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(3), $q.constant(1))), null);
+            expect(f.isFalse).toBe(true);
+        });
+
     });
 
     describe('concatenation with OR', function () {
