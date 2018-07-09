@@ -2210,6 +2210,9 @@
                 
                 for (i = 0; i < optimizedArgs.length; i += 1) {
                     var x = calc(optimizedArgs[i], r, context);
+                    console.log("i = ", i)
+                    console.log("x = ", x)
+                    console.log(" ");
                     if (x === undefined) {
                         return undefined;
                     }
