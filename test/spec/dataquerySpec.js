@@ -528,6 +528,33 @@ describe('DataQuery functions', function () {
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.field('a'), $q.constant(1))), undefined);
             expect(f()).toBeFalsy();
         });
+
+        /* --- */
+
+        it('OR of a series of function including one null and one true gives true', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.or($q.like('a', 'AAB_CC'), $q.eq('q', 1), null, $q.constant(true));
+            expect(f.isTrue).toBe(true);
+        });
+
+        it('OR of a series of function in a null context with an always true function gives true', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(1), $q.constant(1))), null);
+            expect(f()).toBe(true);
+        });
+
+        it('OR of a series of function in a null context with an always true function gives the true constant function', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(1), $q.constant(1))), null);
+            expect(f.isTrue).toBe(true);
+        });
+
+        it('OR of a series of function in a null context not always gives true', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.field('a'), $q.constant(1))), null);
+            expect(f()).toBeFalsy();
+        });
+
     });
 
     describe('min, max functions', function () {
