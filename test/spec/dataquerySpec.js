@@ -529,8 +529,6 @@ describe('DataQuery functions', function () {
             expect(f()).toBeFalsy();
         });
 
-        /* --- */
-
         it('OR of a series of function including one null and one true gives true', function () {
             var xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq('q', 1), null, $q.constant(true));
@@ -788,4 +786,53 @@ describe('DataQuery functions', function () {
 
     });
 
+    describe('bitwiseNot', function () {
+        it('$q.bitwiseNot should be a function', function () {
+            expect($q.bitwiseNot).toEqual(jasmine.any(Function));
+        });
+
+        it('$q.bitwiseNot should return a function', function () {
+            var x = 1,
+                f = $q.bitwiseNot(x);
+            expect(f).toEqual(jasmine.any(Function));
+        });
+
+        it('$q.bitwiseNot of a constant should return ~(constant)', function () {
+            var x = 1,
+                f = $q.bitwiseNot(x);
+            expect(f({})).toBe(-2);
+            x = 5;
+            expect(f({})).toBe(-2);
+        });
+
+        it('$q.bitwiseNot of an operand should return ~(operand)', function () {
+            var x = {a: 1, b: 2},
+                f = $q.bitwiseNot($q.field('a'), 1);
+            expect(f(x)).toBe(-2);
+            x.a = 5;
+            expect(f(x)).toBe(-6);
+            x.a = true;
+            expect(f(x)).toBeFalsy();
+            x.a = false;
+            expect(f(x)).toBeTruthy();
+            x.a = null;
+            expect(f(x)).toBeNull();
+            x.a = undefined;
+            expect(f(x)).toBeUndefined();
+        });
+    });
+
+    describe('bitwiseAnd', function () {
+        
+    });
+
+    describe('bitwiseOr', function () {
+        
+    });
+
+    describe('bitwiseXor', function () {
+        
+    });
+
+    
 });
