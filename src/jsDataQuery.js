@@ -2188,14 +2188,6 @@
                 if (el === null) {
                     return false;
                 }
-                //noinspection JSUnresolvedVariable
-                if (el === true || el.isTrue) {
-                    return false;
-                }
-                //noinspection JSUnresolvedVariable
-                if (el === false || el.isFalse) {
-                    return false;
-                }
                 return true;
             });
 
@@ -2258,13 +2250,27 @@
                 a = [].slice.call(arguments);
             }
 
+            var optimizedArgs = _.filter(a, function(el) {
+                if (el === undefined) {
+                    return false;
+                }
+                if (el === null) {
+                    return false;
+                }
+                return true;
+            });
+
+            if (optimizedArgs.length === 0) {
+                return constant(null);
+            }
+
             f = function(r, context) {
                 var result = null,
                     someNull = false,
                     i;
                 
-                for (i = 0; i < a.length; i += 1) {
-                    var x = calc(a[i], r, context);
+                for (i = 0; i < optimizedArgs.length; i += 1) {
+                    var x = calc(optimizedArgs[i], r, context);
                     if (x === undefined) {
                         return undefined;
                     }
@@ -2292,7 +2298,7 @@
 
             var toSql = function(formatter, context) {
                 //noinspection JSUnresolvedFunction
-                return formatter.bitwiseOr(_.map(a, function(v) {
+                return formatter.bitwiseOr(_.map(optimizedArgs, function(v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -2313,13 +2319,27 @@
                 a = [].slice.call(arguments);
             }
 
+            var optimizedArgs = _.filter(a, function(el) {
+                if (el === undefined) {
+                    return false;
+                }
+                if (el === null) {
+                    return false;
+                }
+                return true;
+            });
+
+            if (optimizedArgs.length === 0) {
+                return constant(null);
+            }
+
             f = function(r, context) {
                 var result = null,
                     someNull = false,
                     i;
                 
-                for (i = 0; i < a.length; i += 1) {
-                    var x = calc(a[i], r, context);
+                for (i = 0; i < optimizedArgs.length; i += 1) {
+                    var x = calc(optimizedArgs[i], r, context);
                     if (x === undefined) {
                         return undefined;
                     }
@@ -2347,7 +2367,7 @@
 
             var toSql = function(formatter, context) {
                 //noinspection JSUnresolvedFunction
-                return formatter.bitwiseXor(_.map(a, function(v) {
+                return formatter.bitwiseXor(_.map(optimizedArgs, function(v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
