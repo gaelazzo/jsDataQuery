@@ -734,6 +734,26 @@ describe('DataQuery functions', function () {
             expect(obj).not.toBe(null);
         });
 
+        it('$q.toObject should return a composed expression stringified', function () {
+            var x = {a: 1, b: 2},
+                f = $q.bitwiseAnd('a', $q.bitwiseNot('b')),
+                obj = $q.toObject(f);
+            expect(JSON.stringify(obj)).toBe(
+                '{"name":"bitwiseAnd","args":[{"value":"a"},{"name":"bitwiseNot","args":[{"value":"b"}]}]}'
+            );
+        });
+
+        it('$q.toObject should return a list of expressions stringified', function () {
+            var x = {a: false, b: true, c:false},                
+                expr1 = $q.not('a'),
+                expr2 = $q.or('a', $q.field('b')),
+                f = $q.list(expr1, expr2),
+                obj = $q.toObject(f);
+            expect(JSON.stringify(obj)).toBe(
+                '{"name":"list","args":[{"name":"not","args":[{"value":"a"}]},{"name":"or","args":[{"value":"a"},{"name":"field","args":[{"value":"b"}]}]}]}'
+            )
+        });
+
     });
 
     describe('fromObject should convert a plain object to a DataQuery', function () {
@@ -859,8 +879,8 @@ describe('DataQuery functions', function () {
             var x = {a: 3, b: 3},
                 y = {a: 4, b: 4},
                 f = $q.bitwiseAnd($q.field('a'), $q.field('b'));
-                expect(f(x)).toBe(3);
-                expect(f(y)).toBe(4);
+            expect(f(x)).toBe(3);
+            expect(f(y)).toBe(4);
         });
 
         it('bitwiseAnd works for multiple values', function () {
@@ -869,7 +889,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
                 f = $q.bitwiseAnd(operand1, operand2, operand3);
-                expect(f(x)).toBe(0);
+            expect(f(x)).toBe(0);
         });
 
         it('bitwiseAnd works for multiple value (by array)', function () {
@@ -878,7 +898,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
                 f = $q.bitwiseAnd(operand1, operand2, operand3);
-                expect(f(x)).toBe(0);
+            expect(f(x)).toBe(0);
         });
 
         it('bitwiseAnd works for composite bitwise expressions', function () {
@@ -887,7 +907,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.bitwiseOr($q.field('a'), $q.field('b')),
                 operand3 = $q.bitwiseOr($q.field('b'), $q.field('c')),
                 f = $q.bitwiseOr(operand1, operand2, operand3);
-                expect(f(x)).toBe(-1);
+            expect(f(x)).toBe(-1);
         });
     });
 
@@ -907,8 +927,8 @@ describe('DataQuery functions', function () {
             var x = {a: 3, b: 3},
                 y = {a: 4, b: 4},
                 f = $q.bitwiseOr($q.field('a'), $q.field('b'));
-                expect(f(x)).toBe(3);
-                expect(f(y)).toBe(4);
+            expect(f(x)).toBe(3);
+            expect(f(y)).toBe(4);
         });
 
         it('bitwiseOr works for multiple values', function () {
@@ -917,7 +937,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
                 f = $q.bitwiseOr(operand1, operand2, operand3);
-                expect(f(x)).toBe(3);
+            expect(f(x)).toBe(3);
         });
 
         it('bitwiseOr works for multiple value (by array)', function () {
@@ -926,7 +946,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
                 f = $q.bitwiseOr(operand1, operand2, operand3);
-                expect(f(x)).toBe(3);
+            expect(f(x)).toBe(3);
         });
 
         it('bitwiseOr works for composite bitwise expressions', function () {
@@ -935,7 +955,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.bitwiseAnd($q.field('a'), $q.field('b')),
                 operand3 = $q.bitwiseAnd($q.field('b'), $q.field('c')),
                 f = $q.bitwiseOr(operand1, operand2, operand3);
-                expect(f(x)).toBe(-2);
+            expect(f(x)).toBe(-2);
         });
     });
 
@@ -955,8 +975,8 @@ describe('DataQuery functions', function () {
             var x = {a: 3, b: 3},
                 y = {a: 4, b: 4},
                 f = $q.bitwiseXor($q.field('a'), $q.field('b'));
-                expect(f(x)).toBe(0);
-                expect(f(y)).toBe(0);
+            expect(f(x)).toBe(0);
+            expect(f(y)).toBe(0);
         });
 
         it('bitwiseXor works for multiple values', function () {
@@ -965,7 +985,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
                 f = $q.bitwiseXor(operand1, operand2, operand3);
-                expect(f(x)).toBe(0);
+            expect(f(x)).toBe(0);
         });
 
         it('bitwiseXor works for multiple value (by array)', function () {
@@ -974,7 +994,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
                 f = $q.bitwiseXor(operand1, operand2, operand3);
-                expect(f(x)).toBe(0);
+            expect(f(x)).toBe(0);
         });
 
         it('bitwiseXor works for composite bitwise expressions', function () {
@@ -983,7 +1003,7 @@ describe('DataQuery functions', function () {
                 operand2 = $q.bitwiseAnd($q.field('b'), $q.field('c')),
                 operand3 = $q.bitwiseOr($q.field('b'), $q.field('c')),
                 f = $q.bitwiseXor(operand1, operand2, operand3);
-                expect(f(x)).toBe(-1);
+            expect(f(x)).toBe(-1);
         });
     });
 
