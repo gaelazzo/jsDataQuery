@@ -786,6 +786,10 @@ describe('DataQuery functions', function () {
 
     });
 
+    describe('list', function () {
+        
+    });
+
     describe('bitwiseNot', function () {
         it('$q.bitwiseNot should be a function', function () {
             expect($q.bitwiseNot).toEqual(jasmine.any(Function));
@@ -834,16 +838,40 @@ describe('DataQuery functions', function () {
             expect(f).toEqual(jasmine.any(Function));
         });
 
-        fit('bitwiseAnd of same value should return 1', function () {
-            var x = {a: 1, b: 2},
-                y = {a: 3, b: 3},
-                //operand1 = $q.field('a'),
-                //operand2 = $q.field('b'),
-                //operand3 = $q.field('c'),
-                f = $q.bitwiseAnd([1, 1, $q.field('a')]);
-            expect(f(x)).toBe(1);
+        it('bitwiseAnd of same value should return same value', function () {
+            var x = {a: 3, b: 3},
+                y = {a: 4, b: 4},
+                f = $q.bitwiseAnd($q.field('a'), $q.field('b'));
+                expect(f(x)).toBe(3);
+                expect(f(y)).toBe(4);
         });
-        
+
+        it('bitwiseAnd works for multiple values', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.field('a'),
+                operand2 = $q.field('b'),
+                operand3 = $q.field('c'),
+                f = $q.bitwiseAnd(operand1, operand2, operand3);
+                expect(f(x)).toBe(0);
+        });
+
+        it('bitwiseAnd works for multiple value (by array)', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.field('a'),
+                operand2 = $q.field('b'),
+                operand3 = $q.field('c'),
+                f = $q.bitwiseAnd(operand1, operand2, operand3);
+                expect(f(x)).toBe(0);
+        });
+
+        it('bitwiseAnd works for composite bitwise expressions', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.bitwiseNot('a'),
+                operand2 = $q.bitwiseOr($q.field('a'), $q.field('b')),
+                operand3 = $q.bitwiseOr($q.field('b'), $q.field('c')),
+                f = $q.bitwiseOr(operand1, operand2, operand3);
+                expect(f(x)).toBe(-1);
+        });
     });
 
     describe('bitwiseOr', function () {
@@ -857,7 +885,41 @@ describe('DataQuery functions', function () {
                 f = $q.bitwiseOr(x, y);
             expect(f).toEqual(jasmine.any(Function));
         });
-        
+
+        it('bitwiseOr of same value should return same value', function () {
+            var x = {a: 3, b: 3},
+                y = {a: 4, b: 4},
+                f = $q.bitwiseOr($q.field('a'), $q.field('b'));
+                expect(f(x)).toBe(3);
+                expect(f(y)).toBe(4);
+        });
+
+        it('bitwiseOr works for multiple values', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.field('a'),
+                operand2 = $q.field('b'),
+                operand3 = $q.field('c'),
+                f = $q.bitwiseOr(operand1, operand2, operand3);
+                expect(f(x)).toBe(3);
+        });
+
+        it('bitwiseOr works for multiple value (by array)', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.field('a'),
+                operand2 = $q.field('b'),
+                operand3 = $q.field('c'),
+                f = $q.bitwiseOr(operand1, operand2, operand3);
+                expect(f(x)).toBe(3);
+        });
+
+        it('bitwiseOr works for composite bitwise expressions', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.bitwiseNot('a'),
+                operand2 = $q.bitwiseAnd($q.field('a'), $q.field('b')),
+                operand3 = $q.bitwiseAnd($q.field('b'), $q.field('c')),
+                f = $q.bitwiseOr(operand1, operand2, operand3);
+                expect(f(x)).toBe(-2);
+        });
     });
 
     describe('bitwiseXor', function () {
@@ -871,7 +933,41 @@ describe('DataQuery functions', function () {
                 f = $q.bitwiseXor(x, y);
             expect(f).toEqual(jasmine.any(Function));
         });
+
+        it('bitwiseXor of same value should return zero', function () {
+            var x = {a: 3, b: 3},
+                y = {a: 4, b: 4},
+                f = $q.bitwiseXor($q.field('a'), $q.field('b'));
+                expect(f(x)).toBe(0);
+                expect(f(y)).toBe(0);
+        });
+
+        it('bitwiseXor works for multiple values', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.field('a'),
+                operand2 = $q.field('b'),
+                operand3 = $q.field('c'),
+                f = $q.bitwiseXor(operand1, operand2, operand3);
+                expect(f(x)).toBe(0);
+        });
+
+        it('bitwiseXor works for multiple value (by array)', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.field('a'),
+                operand2 = $q.field('b'),
+                operand3 = $q.field('c'),
+                f = $q.bitwiseXor(operand1, operand2, operand3);
+                expect(f(x)).toBe(0);
+        });
+
+        it('bitwiseXor works for composite bitwise expressions', function () {
+            var x = {a: 1, b: 2, c: 3},
+                operand1 = $q.bitwiseNot('a'),
+                operand2 = $q.bitwiseAnd($q.field('b'), $q.field('c')),
+                operand3 = $q.bitwiseOr($q.field('b'), $q.field('c')),
+                f = $q.bitwiseXor(operand1, operand2, operand3);
+                expect(f(x)).toBe(-1);
+        });
     });
 
-    
 });
