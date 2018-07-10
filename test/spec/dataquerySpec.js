@@ -840,7 +840,7 @@ describe('DataQuery functions', function () {
                 //operand1 = $q.field('a'),
                 //operand2 = $q.field('b'),
                 //operand3 = $q.field('c'),
-                f = $q.bitwiseAnd(1, 1, $q.field('a'));
+                f = $q.bitwiseAnd([1, 1, $q.field('a')]);
             expect(f(x)).toBe(1);
         });
         
