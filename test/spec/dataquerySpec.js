@@ -787,7 +787,24 @@ describe('DataQuery functions', function () {
     });
 
     describe('list', function () {
-        
+        it('$q.list should be a function', function () {
+            expect($q.list).toEqual(jasmine.any(Function));
+        });
+
+        it('$q.list should return a function', function () {
+            var x = 1,
+                f = $q.list(x);
+            expect(f).toEqual(jasmine.any(Function));
+        });
+
+        it('list should return an array with length equal to number of operands', function () {
+            var x = {a: false, b: true, c:false},                
+                expr1 = $q.not('a'),
+                expr2 = $q.or($q.field('a'), $q.field('b')),
+                expr3 = $q.and($q.field('b'), $q.field('c')),
+                f = $q.list(expr1, expr2, expr3);
+            expect(f(x).length).toBe(3);
+        });
     });
 
     describe('bitwiseNot', function () {

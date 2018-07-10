@@ -2108,10 +2108,11 @@
                 
                 for (i = 0; i < a.length; i += 1) {
                     var x = calc(a[i], r, context);
+
                     if (x === undefined) {
                         return undefined;
                     }
-                    if (isNull(x)) {
+                    if (x === null) {
                         someNull = true;
                     }
                     outputList.push(x); 
