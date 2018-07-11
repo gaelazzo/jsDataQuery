@@ -779,6 +779,12 @@ describe('DataQuery functions', function () {
             expect(f).toEqual(jasmine.any(Function));
         });
 
+        it('$q.fromObject with a list object should return a function', function () {
+            var obj = {"name":"list","args":[{"name":"field","args":[{"value":"a"}]},{"name":"field","args":[{"value":"b"}]}]},
+                f = $q.fromObject(obj);
+            expect(f).toEqual(jasmine.any(Function));
+        });
+
     });
 
     describe('Deserialized DataQuery should be coherent with the serialized one', function () {
@@ -801,6 +807,19 @@ describe('DataQuery functions', function () {
             var f = $q.and($q.eq(1, 1), $q.gt(2, 1)), a = f(),
                 obj = $q.toObject(f),
                 g = $q.fromObject(obj), b = g();
+            expect(a).toEqual(b);
+        });
+
+        it('Coherence check with lists', function () {
+            var x = {a: false, b: true, c:false},                
+                expr1 = $q.not('a'),
+                expr2 = $q.or($q.field('a'), $q.field('b')),
+                expr3 = $q.and($q.field('b'), $q.field('c')),
+                f = $q.list(expr1, expr2, expr3),
+                a = f(),
+                obj = $q.toObject(f),
+                g = $q.fromObject(obj),
+                b = g();
             expect(a).toEqual(b);
         });
 
