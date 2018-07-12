@@ -576,7 +576,7 @@ describe('DataQuery functions', function () {
     });
 
     describe('add, mul, sum functions', function () {
-        it('should make the add/ mul / sum skipping nulls', function () {
+        fit('should make the add/ mul / sum skipping nulls when required', function () {
             var r1 = {a: 1, b: 2, c: null},
                 r2 = {a: 2, b: 2},
                 r3 = {a: 3, b: null},
@@ -584,7 +584,7 @@ describe('DataQuery functions', function () {
                 r5 = {a: null, b: null},
                 rows = [r1, r2, r3, r4, r5];
             expect($q.mul($q.field('a'), $q.field('b'), $q.field('c'))(r1)).toBe(2);
-            expect($q.add($q.field('a'), $q.field('b'), $q.field('c'))(r1)).toBe(3);
+            expect($q.add($q.field('a'), $q.field('b'), $q.field('c'))(r1)).toBe(null);
             expect($q.sum($q.field('a'))(rows)).toBe(7);
             expect($q.mul($q.field('a'), $q.field('b'))(r2)).toBe(4);
             expect($q.sum($q.field('b'))(rows)).toBe(3);
