@@ -171,7 +171,7 @@
          * @return {boolean} true if o is null or undefined
          */
         function isNullOrUndefined(o) {
-            return _.isUndefined(o) || _.isNull(o);
+            return _.isNull(o) || _.isUndefined(o);
         }
 
 
@@ -1162,11 +1162,11 @@
                         someUndefined = true;
                     }
                 }
-                if (someNull) {
-                    return null;
-                }
                 if (someUndefined) {
                     return undefined;
+                }
+                if (someNull) {
+                    return null;
                 }
                 return false;
             };
@@ -1565,11 +1565,11 @@
                         someUndefined = true;
                     }
                 }
-                if (someNull) {
-                    return null;
-                }
                 if (someUndefined) {
                     return undefined;
+                }
+                if (someNull) {
+                    return null;
                 }
                 return true;
             };
@@ -2198,16 +2198,16 @@
 
             f = function(r, context) {
                 var result = null,
-                    someNull = false,
+                    someUndefined = false,
                     i;
                 
                 for (i = 0; i < optimizedArgs.length; i += 1) {
                     var x = calc(optimizedArgs[i], r, context);
-                    if (x === undefined) {
-                        return undefined;
-                    }
                     if (x === null) {
-                        someNull = true;
+                        return null;
+                    }
+                    if (x === undefined) {
+                        someUndefined = true;
                     }
                     if (result === null) {
                         result = x;
@@ -2215,8 +2215,8 @@
                         result = result & x;
                     }
                 }
-                if (someNull) {
-                    return null;
+                if (someUndefined) {
+                    return undefined;
                 }
                 return result;
             };
@@ -2267,16 +2267,16 @@
 
             f = function(r, context) {
                 var result = null,
-                    someNull = false,
+                    someUndefined = false,
                     i;
                 
                 for (i = 0; i < optimizedArgs.length; i += 1) {
                     var x = calc(optimizedArgs[i], r, context);
-                    if (x === undefined) {
-                        return undefined;
-                    }
                     if (x === null) {
-                        someNull = true;
+                        return null;
+                    }
+                    if (x === undefined) {
+                        someUndefined = true;
                     }
                     if (result === null) {
                         result = x;
@@ -2284,8 +2284,8 @@
                         result = result | x;
                     }
                 }
-                if (someNull) {
-                    return null;
+                if (someUndefined) {
+                    return undefined;
                 }
                 return result;
             };
@@ -2336,16 +2336,16 @@
 
             f = function(r, context) {
                 var result = null,
-                    someNull = false,
+                    someUndefined = false,
                     i;
                 
                 for (i = 0; i < optimizedArgs.length; i += 1) {
                     var x = calc(optimizedArgs[i], r, context);
-                    if (x === undefined) {
-                        return undefined;
-                    }
                     if (x === null) {
-                        someNull = true;
+                        return null;
+                    }
+                    if (x === undefined) {
+                        someUndefined = true;
                     }
                     if (result === null) {
                         result = x;
@@ -2353,8 +2353,8 @@
                         result = result ^ x;
                     }
                 }
-                if (someNull) {
-                    return null;
+                if (someUndefined) {
+                    return undefined;
                 }
                 return result;
             };
