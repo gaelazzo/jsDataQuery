@@ -1842,19 +1842,24 @@
             }
             f = function(r, context) {
                 var i,
-                    sum = null;
+                    sum = null,
+                    someUndefined = false
                 for (i = 0; i < a.length; i += 1) {
                     var x = calc(a[i], r, context);
+                    if (x === null) {
+                        return null;
+                    }
                     if (x === undefined) {
-                        return undefined;
+                        someUndefined = true;
                     }
                     if (sum === null) {
                         sum = x;
                     } else {
-                        if (x !== null) {
-                            sum += x;
-                        }
+                        sum += x;
                     }
+                }
+                if (someUndefined) {
+                    return undefined
                 }
                 return sum;
             };
