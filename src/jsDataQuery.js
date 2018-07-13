@@ -2416,7 +2416,7 @@
                 return 'modulus(' + expr.toString() + ',' + expr2.toString() + ')';
             };
 
-            f.myName = 'div';
+            f.myName = 'modulus';
             f.myArguments = arguments;
 
             var toSql = function(formatter, context) {
