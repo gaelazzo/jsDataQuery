@@ -1120,11 +1120,7 @@
                         return true;
                     }
 
-                    if (el === false) {
-                        return false;
-                    }
-                    //noinspection JSUnresolvedVariable
-                    if (el.isFalse) {
+                    if (el === false || el.isFalse) {
                         return false;
                     }
 
