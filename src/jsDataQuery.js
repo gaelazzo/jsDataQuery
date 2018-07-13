@@ -521,19 +521,22 @@
         function bitSet(expression, nbit) {
             var expr = autofield(expression),
                 f = function(r, context) {
+                    if (r === undefined) {
+                        return undefined;
+                    }
                     var v1 = calc(expr, r, context), v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
                     if (v1 === null) {
-                        return false;
+                        return null;
                     }
                     v2 = calc(nbit, r, context);
                     if (v2 === undefined) {
                         return undefined;
                     }
                     if (v2 === null) {
-                        return false;
+                        return null;
                     }
                     return (v1 & (1 << v2)) !== 0;
                 };
@@ -561,19 +564,22 @@
         function bitClear(expression, nbit) {
             var expr = autofield(expression),
                 f = function(r, context) {
+                    if (r === undefined) {
+                        return undefined;
+                    }
                     var v1 = calc(expr, r, context), v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
                     if (v1 === null) {
-                        return false;
+                        return null;
                     }
                     v2 = calc(nbit, r, context);
                     if (v2 === undefined) {
                         return undefined;
                     }
                     if (v2 === null) {
-                        return false;
+                        return null;
                     }
                     return (v1 & (1 << v2)) === 0;
                 };
