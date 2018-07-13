@@ -340,11 +340,16 @@ describe('DataQuery functions', function () {
             expect(f(xx)).toBeTruthy();
         });
 
+        it('like with a non-string return false', function () {
+            var xx = {a: 'AABBCC', q: '1'},
+                f = $q.like('a', 5);
+            expect(f(xx)).toBeFalsy();
+        });
 
-        it('like with null return false', function () {
+        it('like with null return null', function () {
             var xx = {a: 'AABBCC', q: '1'},
                 f = $q.like('a', null);
-            expect(f(xx)).toBeFalsy();
+            expect(f(xx)).toBe(null);
         });
 
     });

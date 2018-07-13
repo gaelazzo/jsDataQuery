@@ -524,19 +524,13 @@
                     if (r === undefined) {
                         return undefined;
                     }
-                    var v1 = calc(expr, r, context), v2;
-                    if (v1 === undefined) {
-                        return undefined;
-                    }
-                    if (v1 === null) {
+                    var v1 = calc(expr, r, context),
+                        v2 = calc(nbit, r, context);
+                    if (v1 === null || v2 === null) {
                         return null;
                     }
-                    v2 = calc(nbit, r, context);
-                    if (v2 === undefined) {
+                    if (v1 === undefined || v2 === undefined) {
                         return undefined;
-                    }
-                    if (v2 === null) {
-                        return null;
                     }
                     return (v1 & (1 << v2)) !== 0;
                 };
@@ -567,19 +561,14 @@
                     if (r === undefined) {
                         return undefined;
                     }
-                    var v1 = calc(expr, r, context), v2;
-                    if (v1 === undefined) {
-                        return undefined;
-                    }
-                    if (v1 === null) {
+                    var v1 = calc(expr, r, context),
+                        v2 = calc(nbit, r, context);
+                    
+                    if (x === null || y === null) {
                         return null;
                     }
-                    v2 = calc(nbit, r, context);
-                    if (v2 === undefined) {
+                    if (x === undefined || y === undefined) {
                         return undefined;
-                    }
-                    if (v2 === null) {
-                        return null;
                     }
                     return (v1 & (1 << v2)) === 0;
                 };
@@ -707,20 +696,20 @@
         function like(expr1, mask) {
             var expr = autofield(expr1),
                 f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2, likeExpr;
-                    if (v1 === undefined) {
+                    var likeExpr,
+                        v1 = calc(expr, r, context),
+                        v2 = calc(mask, r, context);
+
+                    if (v1 === null || v2 === null) {
+                        return null;
+                    }
+                    if (v1 === undefined || v2 === undefined) {
                         return undefined;
                     }
-                    if (v1 === null) {
+                    if(!_.isString(v1) || !_.isString(v2)) {
                         return false;
-                    }
-                    v2 = calc(mask, r, context);
-                    if (v2 === undefined) {
-                        return undefined;
-                    }
-                    if (v2 === null) {
-                        return false;
-                    }
+                    } 
+
                     likeExpr = myRegExpEscape(v2);
                     return (new RegExp(likeExpr.replace(new RegExp('%', 'g'), ".*").replace(new RegExp('_', 'g'), ".")).exec(v1) !== null);
                 };
@@ -1758,20 +1747,14 @@
                 if (r === undefined) {
                     return undefined;
                 }
-                var x = calc(expr, r, context), y;
-                if (x === undefined) {
-                    return undefined;
-                }
-                if (x === null) {
+                var x = calc(expr, r, context),
+                    y = calc(expr2, r, context);
+                
+                if (x === null || y === null) {
                     return null;
                 }
-
-                y = calc(expr2, r, context);
-                if (y === undefined) {
+                if (x === undefined || y === undefined) {
                     return undefined;
-                }
-                if (y === null) {
-                    return null;
                 }
                 return x - y;
             };
@@ -1803,19 +1786,14 @@
                 if (r === undefined) {
                     return undefined;
                 }
-                var x = calc(expr, r, context), y;
-                if (x === undefined) {
-                    return undefined;
-                }
-                if (x === null) {
+                var x = calc(expr, r, context),
+                    y = calc(expr2, r, context);
+
+                if (x === null || y === null) {
                     return null;
                 }
-                y = calc(expr2, r, context);
-                if (y === undefined) {
+                if (x === undefined || y === undefined) {
                     return undefined;
-                }
-                if (y === null) {
-                    return null;
                 }
                 return x / y;
             };
@@ -2402,19 +2380,14 @@
                 if (r === undefined) {
                     return undefined;
                 }
-                var x = calc(expr, r, context), y;
-                if (x === undefined) {
-                    return undefined;
-                }
-                if (x === null) {
+                var x = calc(expr, r, context),
+                    y = calc(expr2, r, context);
+
+                if (x === null || y === null) {
                     return null;
                 }
-                y = calc(expr2, r, context);
-                if (y === undefined) {
+                if (x === undefined || y === undefined) {
                     return undefined;
-                }
-                if (y === null) {
-                    return null;
                 }
                 return x % y;
             };
