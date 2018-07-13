@@ -591,8 +591,8 @@ describe('DataQuery functions', function () {
         });
     });
 
-    describe('sub /div / minus functions', function () {
-        it('sub/div should subtract / divide', function () {
+    describe('sub / div / modulus /minus functions', function () {
+        it('sub/div/modulus should subtract / divide /mod', function () {
             var
                 r1 = {a: 1, b: 2, c: null},
                 r2 = {a: 2, b: 2},
@@ -603,8 +603,11 @@ describe('DataQuery functions', function () {
             expect($q.div($q.field('a'), $q.field('b'))(r1)).toBe(1 / 2);
             expect($q.sub($q.field('a'), $q.field('b'))(r2)).toBe(0);
             expect($q.div($q.field('a'), $q.field('b'))(r2)).toBe(1);
+            expect($q.modulus($q.field('a'), $q.field('b'))(r1)).toBe(1);
+            expect($q.modulus($q.field('a'), $q.field('b'))(r2)).toBe(0);
             expect($q.sub($q.field('a'), $q.field('b'))(r3)).toBe(null);
             expect($q.div($q.field('a'), $q.field('b'))(r3)).toBe(null);
+            expect($q.modulus($q.field('a'), $q.field('b'))(r3)).toBe(null);
         });
 
         it('minus expr should change sign to expr', function () {

@@ -1992,17 +1992,17 @@
                     someUndefined = false;
                 for (i = 0; i < a.length; i += 1) {
                     var x = calc(a[i], r, context);
+                    if (x === null) {
+                        return null;
+                    }
                     if (x === undefined) {
                         someUndefined = true;
-                    } else if (x === 0) {
-                        return 0;
-                    } else if (x !== null) {
-                        if (prod === null) {
-                            prod = x;
-                        } else {
-                            prod *= x;
-                        }
                     }
+                    if (prod === null) {
+                        prod = x;
+                    } else {
+                        prod *= x;
+                    }               
                 }
                 if (someUndefined) {
                     return undefined;
@@ -2380,6 +2380,52 @@
             };
             return toSqlFun(f, toSql);
         }
+
+        
+        /**
+         * returns a functions that does the modulus
+         * @method modulus
+         * @param {sqlFun|string|object} expr1
+         * @param {sqlFun|object} expr2
+         * @return {sqlFun}
+         */
+        function modulus(expr1, expr2) {
+            var expr = autofield(expr1),
+                f;
+            f = function(r, context) {
+                if (r === undefined) {
+                    return undefined;
+                }
+                var x = calc(expr, r, context), y;
+                if (x === undefined) {
+                    return undefined;
+                }
+                if (x === null) {
+                    return null;
+                }
+                y = calc(expr2, r, context);
+                if (y === undefined) {
+                    return undefined;
+                }
+                if (y === null) {
+                    return null;
+                }
+                return x % y;
+            };
+            f.toString = function() {
+                return 'modulus(' + expr.toString() + ',' + expr2.toString() + ')';
+            };
+
+            f.myName = 'div';
+            f.myArguments = arguments;
+
+            var toSql = function(formatter, context) {
+                //noinspection JSUnresolvedFunction
+                return formatter.modulus(expr, expr2, context);
+            };
+            return toSqlFun(f, toSql);
+        }
+        
   
         var dataQuery = {
             context: context,
@@ -2434,6 +2480,7 @@
             bitwiseAnd : bitwiseAnd,
             bitwiseOr: bitwiseOr,
             bitwiseXor : bitwiseXor,
+            modulus : modulus,
             myLoDash: _ //for testing purposes
         };
 
