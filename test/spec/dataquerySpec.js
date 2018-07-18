@@ -747,7 +747,7 @@ describe('DataQuery functions', function () {
                 f = $q.bitwiseAnd('a', $q.bitwiseNot('b')),
                 obj = $q.toObject(f);
             expect(JSON.stringify(obj)).toBe(
-                '{"name":"bitwiseAnd","args":[{"value":"a"},{"name":"bitwiseNot","args":[{"value":"b"}]}]}'
+                '{"name":"&","args":[{"value":"a"},{"name":"~","args":[{"value":"b"}]}]}'
             );
         });
 
