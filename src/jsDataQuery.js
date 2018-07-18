@@ -2145,7 +2145,7 @@
                 return '~(' + expr.toString() + ')';
             };
 
-            f.myName = 'bitwiseNot';
+            f.myName = '~';
             f.myArguments = arguments;
 
             var toSql = function(formatter, context) {
@@ -2210,7 +2210,7 @@
                 return '&(' + arrayToString(a) + ')';
             };
 
-            f.myName = 'bitwiseAnd';
+            f.myName = '&';
             f.myArguments = arguments;
 
             var toSql = function(formatter, context) {
@@ -2279,7 +2279,7 @@
                 return '|(' + arrayToString(a) + ')';
             };
 
-            f.myName = 'bitwiseOr';
+            f.myName = '|';
             f.myArguments = arguments;
 
             var toSql = function(formatter, context) {
@@ -2348,7 +2348,7 @@
                 return '^(' + arrayToString(a) + ')';
             };
 
-            f.myName = 'bitwiseXor';
+            f.myName = '^';
             f.myArguments = arguments;
 
             var toSql = function(formatter, context) {
