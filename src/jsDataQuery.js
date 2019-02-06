@@ -2400,16 +2400,15 @@
             };
             return toSqlFun(f, toSql);
         }
-		
-		/**
-         * returns an array list from the parameters if all the parameters are legal.
-         * Oterwise it returns undefined or null.
+
+        /**
+         * returns the result of internal expression
          * @method doPar
-         * @param {sqlFun[]|object[]} values
+         * @param {sqlFun|string|object} expr
          * @return {sqlFun}
          */
-        function doPar(values) {
-            var a = values,
+        function doPar(expr) {
+            var a = expr,
                 alwaysFalse = false,
                 f;
             if (!_.isArray(a)) {
@@ -2440,36 +2439,15 @@
             }
 
             f = function(r, context) {
-                var i,
-                    someUndefined = false,
-                    someNull = false;
-                for (i = 0; i < optimizedArgs.length; i += 1) {
-                    var x = calc(optimizedArgs[i], r, context);
-                    if (x === false) {
-                        return false;
-                    }
-                    if (x === null) {
-                        someNull = true;
-                    }
-                    if (x === undefined) {
-                        someUndefined = true;
-                    }
-                }
-                if (someUndefined) {
-                    return undefined;
-                }
-                if (someNull) {
-                    return null;
-                }
-                return true;
+                return calc(optimizedArgs[0], r, context);
             };
+
+
             f.myName = 'doPar';
             f.myArguments = arguments;
 
             var toSql = function(formatter, context) {
-                return formatter.doPar(_.map(a, function(v) {
-                    return formatter.toSql(v, context);
-                }));
+                return formatter.doPar(a, context);
             };
             return toSqlFun(f, toSql);
         }
@@ -2529,7 +2507,7 @@
             bitwiseOr: bitwiseOr,
             bitwiseXor : bitwiseXor,
             modulus : modulus,
-			doPar : doPar,
+            doPar:doPar,
             myLoDash: _ //for testing purposes
         };
 
