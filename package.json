@@ -7,7 +7,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-     "lodash": ">=4.17.5"
+     "lodash": "4.17.13"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
