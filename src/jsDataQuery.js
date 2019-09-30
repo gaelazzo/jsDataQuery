@@ -2540,7 +2540,6 @@
             // Export for a browser or Rhino.
             root.jsDataQuery = dataQuery;
         }
-    }.call(this,
+    }).call(this,
         (typeof _ === 'undefined') ? require('lodash') : _
-    )
 );
