@@ -752,7 +752,7 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.toObject should return a list of expressions stringified', function () {
-            var x = {a: false, b: true, c:false},                
+            var x = {a: false, b: true, c:false},
                 expr1 = $q.not('a'),
                 expr2 = $q.or('a', $q.field('b')),
                 f = $q.list(expr1, expr2),
