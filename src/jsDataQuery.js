@@ -1,79 +1,54 @@
-/*globals sqlFormatter,define,quote,global,module,exports */
+/*globals sqlFormatter, Function, define, quote, global, module, exports,_ ,require */
 /*jslint nomen: true*/
 /*jslint bitwise: true */
 
-;
-'use strict';
+
 
 (function(_) {
-        /** Used as a safe reference for `undefined` in pre-ES5 environments. (thanks lodash)*/
-        var undefined;
 
-        /**
-         * Escapes special characters in a string
-         * @method myRegExpEscape
-         * @private
-         * @param str the string to be escaped
-         * @return {String} escaped string
-         */
-        var myRegExpEscape = function(str) {
-            return str.replace(/([.*+?\^=!:${}()|\[\]\/\\])/g, '\\$1'); // str.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
-        };
+    /**
+     * Escapes special characters in a string
+     * @method myRegExpEscape
+     * @private
+     * @param str the string to be escaped
+     * @return {String} escaped string
+     */
+    const myRegExpEscape = function (str) {
+        return str.replace(/([.*+?\^=!:${}()\|\[\]\/\\])/g, '\\$1'); // str.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+    };
 
-        if (!Function.prototype.bind) {
-            Function.prototype.bind = function(oThis) {
-                if (typeof this !== "function") {
-                    // closest thing possible to the ECMAScript 5 internal IsCallable function
-                    throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-                }
 
-                var aArgs = Array.prototype.slice.call(arguments, 1),
-                    fToBind = this,
-                    FNOP = function() {
-                    },
-                    fBound = function() {
-                        return fToBind.apply(this instanceof FNOP && oThis ? this : oThis,
-                            aArgs.concat(Array.prototype.slice.call(arguments)));
-                    };
+    /** Used to determine if values are of the language type `Object`. (thanks lodash)*/
+    const objectTypes = {
+        'function': true,
+        'object': true
+    };
 
-                FNOP.prototype = this.prototype;
-                fBound.prototype = new FNOP();
+    /**
+     * Used as a reference to the global object. (thanks lodash)
+     *
+     * The `this` value is used if it is the global object to avoid Greasemonkey's
+     * restricted `window` object, otherwise the `window` object is used.
+     */
+    let root = (objectTypes[typeof window] && window !== (this && this.window)) ? window : this;
 
-                return fBound;
-            };
-        }
+    /** Detect free variable `exports`. (thanks lodash) */
+    const freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports;
 
-        /** Used to determine if values are of the language type `Object`. (thanks lodash)*/
-        var objectTypes = {
-            'function': true,
-            'object': true
-        };
+    /** Detect free variable `module`. (thanks lodash)*/
+    const freeModule = objectTypes[typeof module] && module && !module.nodeType && module;
 
-        /**
-         * Used as a reference to the global object. (thanks lodash)
-         *
-         * The `this` value is used if it is the global object to avoid Greasemonkey's
-         * restricted `window` object, otherwise the `window` object is used.
-         */
-        var root = (objectTypes[typeof window] && window !== (this && this.window)) ? window : this;
-
-        /** Detect free variable `exports`. (thanks lodash) */
-        var freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports;
-
-        /** Detect free variable `module`. (thanks lodash)*/
-        var freeModule = objectTypes[typeof module] && module && !module.nodeType && module;
-
-        /** Detect free variable `global` from Node.js or Browserified code and use it as `root`. (thanks lodash)*/
-        var freeGlobal = freeExports && freeModule && typeof global === 'object' && global;
-        if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
+    /** Detect free variable `global` from Node.js or Browserified code and use it as `root`. (thanks lodash)*/
+    const freeGlobal = freeExports && freeModule && typeof global === 'object' && global;
+    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
             root = freeGlobal;
         }
 
-        /** Detect the popular CommonJS extension `module.exports`. Thanks lodash */
-        var moduleExports = freeModule && freeModule.exports === freeExports && freeExports;
+    /** Detect the popular CommonJS extension `module.exports`. Thanks lodash */
+    const moduleExports = freeModule && freeModule.exports === freeExports && freeExports;
 
 
-        function isAngularField(f) {
+    function isAngularField(f) {
             return (f.substr(0, 2) === '$$');
         }
 
@@ -184,7 +159,7 @@
          * @return {sqlFun}
          */
         function toSqlFun(f, toSql) {
-            var tryInvoke = f();
+            let tryInvoke = f();
             if (tryInvoke !== undefined) {
                 //noinspection JSValidateTypes
                 f = constant(tryInvoke);
@@ -218,7 +193,7 @@
          *   context(environmentFunction) applied to environment will return 1
          */
         function context(environmentVariable) {
-            var f = function(environment) {
+            const f = function (environment) {
                 if (environment === undefined) {
                     return undefined;
                 }
@@ -255,7 +230,7 @@
          *
          */
         function field(fieldName, tableName) {
-            var f = function(r) {
+            const f = function (r) {
                 if (isNullOrUndefined(r)) {
                     return undefined;
                 }
@@ -272,7 +247,7 @@
                 }
                 return fieldName;
             };
-            var toSql = function(formatter) {
+            const toSql = function (formatter) {
                 //noinspection JSUnresolvedFunction
                 return formatter.field(fieldName, tableName);
             };
@@ -309,11 +284,11 @@
          * @return {sqlFun} f such that f()= k, f.toSql()= formatter.quote(k)
          */
         function constant(value) {
-            var k = value;
+            let k = value;
             if (k === undefined) {
                 k = null;
             }
-            var f = function() {
+            const f = function () {
                 return k;
             };
             f.toString = function() {
@@ -344,9 +319,12 @@
                 return f;
             }
 
-            /*
-             The .toSql method of a constant calls directly the quote method of the formatter. HERE is where the
-             tree top-down scan ends.
+
+            /**
+             * The .toSql method of a constant calls directly the quote method of the formatter. HERE is where the
+             * tree top-down scan ends.
+             * @param {sqlFormatter} formatter
+             * @returns {*}
              */
             f.toSql = function(formatter) {
                 //noinspection JSUnresolvedFunction
@@ -395,8 +373,8 @@
          *  f.toSql() = something like '(EXPR is null)' where EXPR is the sql representation of the given expr
          */
         function isNull(expr1) {
-            var expr = autofield(expr1);
-            var f = function(r, context) {
+            const expr = autofield(expr1);
+            const f = function (r, context) {
                 if (expr === undefined) {
                     return undefined;
                 }
@@ -404,7 +382,7 @@
                     return true;
                 }
 
-                var res = calc(expr, r, context);
+                const res = calc(expr, r, context);
                 if (res === undefined) {
                     return undefined;
                 }
@@ -414,7 +392,7 @@
             f.myName = 'isNull';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.isNull(expr, context);
             };
             return toSqlFun(f, toSql);
@@ -428,15 +406,15 @@
          *  f.toSql() = something like '(EXPR is not null)' where EXPR is the sql representation of the given expr
          */
         function isNotNull(expr1) {
-            var expr = autofield(expr1);
-            var f = function(r, context) {
+            const expr = autofield(expr1);
+            const f = function (r, context) {
                 if (expr === undefined) {
                     return undefined;
                 }
                 if (expr === null) {
                     return false;
                 }
-                var res = calc(expr, r, context);
+                const res = calc(expr, r, context);
                 if (res === undefined) {
                     return undefined;
                 }
@@ -446,7 +424,7 @@
             f.myName = 'isNotNull';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.isNotNull(expr, context);
             };
@@ -461,9 +439,9 @@
          * @return {sqlFun} f where f(r) = - r. r should evaluate into a number
          */
         function minus(expr1) {
-            var expr = autofield(expr1);
-            var f = function(r, context) {
-                var v1 = calc(expr, r, context);
+            const expr = autofield(expr1);
+            const f = function (r, context) {
+                const v1 = calc(expr, r, context);
                 if (isNullOrUndefined(v1)) {
                     return v1;
                 }
@@ -476,7 +454,7 @@
             f.myName = 'minus';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.minus(expr, context);
             };
@@ -490,9 +468,9 @@
          * @return {sqlFun} f where f(r) = not r. r should evaluate into a boolean
          */
         function not(expr1) {
-            var expr = autofield(expr1);
-            var f = function(r, context) {
-                var v1 = calc(expr, r, context);
+            let expr = autofield(expr1);
+            let f = function (r, context) {
+                let v1 = calc(expr, r, context);
                 if (isNullOrUndefined(v1)) {
                     return v1;
                 }
@@ -505,7 +483,7 @@
             f.myName = 'not';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.not(expr, context);
             };
             return toSqlFun(f, toSql);
@@ -519,12 +497,12 @@
          * @return {sqlFun}
          */
         function bitSet(expression, nbit) {
-            var expr = autofield(expression),
-                f = function(r, context) {
+            const expr = autofield(expression),
+                f = function (r, context) {
                     if (r === undefined) {
                         return undefined;
                     }
-                    var v1 = calc(expr, r, context),
+                    const v1 = calc(expr, r, context),
                         v2 = calc(nbit, r, context);
                     if (v1 === null || v2 === null) {
                         return null;
@@ -541,7 +519,7 @@
             f.myName = 'bitSet';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.bitSet(expr, nbit, context);
             };
@@ -556,18 +534,18 @@
          * @return {sqlFun}
          */
         function bitClear(expression, nbit) {
-            var expr = autofield(expression),
-                f = function(r, context) {
+            const expr = autofield(expression),
+                f = function (r, context) {
                     if (r === undefined) {
                         return undefined;
                     }
-                    var v1 = calc(expr, r, context),
+                    const v1 = calc(expr, r, context),
                         v2 = calc(nbit, r, context);
-                    
-                    if (x === null || y === null) {
+
+                    if (v1 === null || v2 === null) {
                         return null;
                     }
-                    if (x === undefined || y === undefined) {
+                    if (v1 === undefined || v2 === undefined) {
                         return undefined;
                     }
                     return (v1 & (1 << v2)) === 0;
@@ -579,7 +557,7 @@
             f.myName = 'bitClear';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.bitClear(expr, nbit, context);
             };
@@ -595,9 +573,10 @@
          * @return {sqlFun}
          */
         function testMask(expr1, mask, val) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2, v3;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2, v3;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -628,7 +607,7 @@
             f.myName = 'testMask';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.testMask(expr, mask, val, context);
             };
@@ -645,9 +624,10 @@
          * @returns {sqlFun}
          */
         function between(expr1, min, max) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2, v3;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2, v3;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -677,7 +657,7 @@
             f.myName = 'between';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.between(expr, min, max, context);
             };
@@ -694,10 +674,10 @@
          *        like(const('a'),'s%') compiles into ('a' like 's%')
          */
         function like(expr1, mask) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var likeExpr,
-                        v1 = calc(expr, r, context),
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    let likeExpr;
+                    const v1 = calc(expr, r, context),
                         v2 = calc(mask, r, context);
 
                     if (v1 === null || v2 === null) {
@@ -706,9 +686,9 @@
                     if (v1 === undefined || v2 === undefined) {
                         return undefined;
                     }
-                    if(!_.isString(v1) || !_.isString(v2)) {
+                    if (!_.isString(v1) || !_.isString(v2)) {
                         return false;
-                    } 
+                    }
 
                     likeExpr = myRegExpEscape(v2);
                     return (new RegExp(likeExpr.replace(new RegExp('%', 'g'), ".*").replace(new RegExp('_', 'g'), ".")).exec(v1) !== null);
@@ -720,7 +700,7 @@
             f.myName = 'like';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.like(expr, mask, context);
             };
@@ -751,22 +731,22 @@
          * @returns {sqlFun}
          */
         function distinct(exprList) {
-            var f = function(arr, context) {
+            const f = function (arr, context) {
                 if (arr === undefined) {
                     return undefined;
                 }
-                var someUndefined = false,
-                    res = _.map(arr, function(a) {
-                        return _.reduce(exprList, function(accumulator, expr) {
-                            var o = calc(expr, a, context);
-                            if (o === undefined) {
-                                someUndefined = true;
-                            }
-                            accumulator.push(o);
-                            return accumulator;
+                let someUndefined = false;
+                const res = _.map(arr, function (a) {
+                    return _.reduce(exprList, function (accumulator, expr) {
+                        const o = calc(expr, a, context);
+                        if (o === undefined) {
+                            someUndefined = true;
+                        }
+                        accumulator.push(o);
+                        return accumulator;
 
-                        }, []);
-                    });
+                    }, []);
+                });
                 if (someUndefined) {
                     return undefined;
                 }
@@ -779,7 +759,7 @@
             f.myName = 'distinct';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.distinct(exprList, context);
             };
@@ -795,9 +775,10 @@
          * @returns {sqlFun}
          */
         function isIn(expr1, list) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v = calc(expr, r, context), l;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v = calc(expr, r, context);
+                    let l;
                     if (v === undefined) {
                         return undefined;
                     }
@@ -821,7 +802,7 @@
             f.myName = 'isIn';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.isIn(expr, list, context);
             };
@@ -857,9 +838,10 @@
          * @returns {sqlFun}
          */
         function eq(expr1, expr2) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -867,8 +849,8 @@
                     if (v2 === undefined) {
                         return undefined;
                     }
-                    if ((v1 instanceof Date) && (v2 instanceof Date)){
-                        return  v1.valueOf() === v2.valueOf();
+                    if ((v1 instanceof Date) && (v2 instanceof Date)) {
+                        return v1.valueOf() === v2.valueOf();
                     }
                     return v1 === v2;
                 };
@@ -880,7 +862,7 @@
             f.myName = 'eq';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.eq(expr, expr2, context);
             };
             return toSqlFun(f, toSql);
@@ -894,9 +876,10 @@
          * @returns {sqlFun}
          */
         function ne(expr1, expr2) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -904,8 +887,8 @@
                     if (v2 === undefined) {
                         return undefined;
                     }
-                    if ((v1 instanceof Date) && (v2 instanceof Date)){
-                        return  v1.valueOf() !== v2.valueOf();
+                    if ((v1 instanceof Date) && (v2 instanceof Date)) {
+                        return v1.valueOf() !== v2.valueOf();
                     }
 
                     return v1 !== v2;
@@ -917,7 +900,7 @@
             f.myName = 'ne';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.ne(expr, expr2, context);
             };
             return toSqlFun(f, toSql);
@@ -932,9 +915,10 @@
          * @returns {sqlFun}
          */
         function lt(expr1, expr2) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -948,8 +932,8 @@
                     if (v2 === null) {
                         return false;
                     }
-                    if ((v1 instanceof Date) && (v2 instanceof Date)){
-                        return  v1.valueOf() < v2.valueOf();
+                    if ((v1 instanceof Date) && (v2 instanceof Date)) {
+                        return v1.valueOf() < v2.valueOf();
                     }
                     return v1 < v2;
                 };
@@ -960,7 +944,7 @@
             f.myName = 'lt';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.lt(expr, expr2, context);
             };
             return toSqlFun(f, toSql);
@@ -974,9 +958,10 @@
          * @returns {sqlFun}
          */
         function le(expr1, expr2) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -991,8 +976,8 @@
                     if (v2 === null) {
                         return false;
                     }
-                    if ((v1 instanceof Date) && (v2 instanceof Date)){
-                        return  v1.valueOf() <= v2.valueOf();
+                    if ((v1 instanceof Date) && (v2 instanceof Date)) {
+                        return v1.valueOf() <= v2.valueOf();
                     }
 
                     return v1 <= v2;
@@ -1004,7 +989,7 @@
             f.myName = 'le';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.le(expr, expr2, context);
             };
@@ -1019,9 +1004,10 @@
          * @returns {sqlFun}
          */
         function gt(expr1, expr2) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -1035,8 +1021,8 @@
                     if (v2 === null) {
                         return false;
                     }
-                    if ((v1 instanceof Date) && (v2 instanceof Date)){
-                        return  v1.valueOf() > v2.valueOf();
+                    if ((v1 instanceof Date) && (v2 instanceof Date)) {
+                        return v1.valueOf() > v2.valueOf();
                     }
 
                     return v1 > v2;
@@ -1048,7 +1034,7 @@
             f.myName = 'gt';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.gt(expr, expr2, context);
             };
             return toSqlFun(f, toSql);
@@ -1062,9 +1048,10 @@
          * @returns {sqlFun}
          */
         function ge(expr1, expr2) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context), v2;
+            const expr = autofield(expr1),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
+                    let v2;
                     if (v1 === undefined) {
                         return undefined;
                     }
@@ -1078,8 +1065,8 @@
                     if (v2 === null) {
                         return false;
                     }
-                    if ((v1 instanceof Date) && (v2 instanceof Date)){
-                        return  v1.valueOf() >= v2.valueOf();
+                    if ((v1 instanceof Date) && (v2 instanceof Date)) {
+                        return v1.valueOf() >= v2.valueOf();
                     }
                     return v1 >= v2;
                 };
@@ -1091,7 +1078,7 @@
             f.myName = 'ge';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.ge(expr, expr2, context);
             };
@@ -1105,13 +1092,13 @@
          * @returns {sqlFun}
          */
         function or(arr) {
-            var a = arr,
-                alwaysTrue = false,
-                f;
+            let a = arr;
+            let alwaysTrue = false;
+            let f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
-            var optimizedArgs = _.filter(a,
+            const optimizedArgs = _.filter(a,
                 function (el) {
                     if (el === undefined) {
                         return false;
@@ -1124,7 +1111,6 @@
                         return false;
                     }
 
-                    //noinspection JSUnresolvedVariable
                     if (el === true || el.isTrue) {
                         alwaysTrue = true;
                     }
@@ -1138,11 +1124,11 @@
             }
 
             f = function (r, context) {
-                var i,
+                let i,
                     someUndefined = false,
                     someNull = false;
                 for (i = 0; i < optimizedArgs.length; i += 1) {
-                    var x = calc(optimizedArgs[i], r, context);
+                    const x = calc(optimizedArgs[i], r, context);
                     if (x === true) {
                         return true;
                     }
@@ -1168,7 +1154,7 @@
             f.myName = 'or';
             f.myArguments = arguments;
 
-            var toSql = function (formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.joinOr(_.map(optimizedArgs, function (v) {
                     //noinspection JSUnresolvedFunction
@@ -1184,15 +1170,15 @@
          * @returns {sqlFun}
          */
         function coalesce(arr) {
-            var a = arr,
+            let a = arr,
                 f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
             f = function(r, context) {
-                var i;
+                let i;
                 for (i = 0; i < a.length; i += 1) {
-                    var x = calc(a[i], r, context);
+                    const x = calc(a[i], r, context);
                     if (x === undefined) {
                         return undefined;
                     }
@@ -1209,9 +1195,9 @@
             f.myName = 'coalesce';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
-                return formatter.coalesce(_.map(a, function(v) {
+                return formatter.coalesce(_.map(a, function (v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -1228,7 +1214,7 @@
          * @return {sqlFun}
          */
         function isNullOrEq(expr1, expr2) {
-            var expr = autofield(expr1);
+            const expr = autofield(expr1);
             return or(isNull(expr), eq(expr, expr2));
         }
 
@@ -1240,7 +1226,7 @@
          * @returns {sqlFun}
          */
         function isNullOrGt(expr1, expr2) {
-            var expr = autofield(expr1);
+            const expr = autofield(expr1);
             return or(isNull(expr), gt(expr, expr2));
         }
 
@@ -1252,7 +1238,7 @@
          * @return {sqlFun}
          */
         function isNullOrGe(expr1, expr2) {
-            var expr = autofield(expr1);
+            const expr = autofield(expr1);
             return or(isNull(expr), ge(expr, expr2));
         }
 
@@ -1264,7 +1250,7 @@
          * @return {sqlFun}
          */
         function isNullOrLt(expr1, expr2) {
-            var expr = autofield(expr1);
+            const expr = autofield(expr1);
             return or(isNull(expr), lt(expr, expr2));
         }
 
@@ -1276,7 +1262,7 @@
          * @returns {sqlFun}
          */
         function isNullOrLe(expr1, expr2) {
-            var expr = autofield(expr1);
+            const expr = autofield(expr1);
             return or(isNull(expr), le(expr, expr2));
         }
 
@@ -1288,14 +1274,14 @@
          * @returns {sqlFun}
          */
         function max(expr1) {
-            var expr = autofield(expr1),
-                f = function(arr, context) {
+            const expr = autofield(expr1),
+                f = function (arr, context) {
                     if (arr === undefined) {
                         return undefined;
                     }
-                    var m = null;
-                    _.forEach(arr, function(el) {
-                        var val = calc(expr, el, context);
+                    let m = null;
+                    _.forEach(arr, function (el) {
+                        const val = calc(expr, el, context);
                         if (val === undefined) {
                             m = undefined; //if any undefined is found, return undefined
                             return false;
@@ -1322,7 +1308,7 @@
             f.myArguments = arguments;
 
             f.grouping = true;
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.max(expr, context);
             };
             return toSqlFun(f, toSql);
@@ -1336,14 +1322,14 @@
          * @returns {sqlFun}
          */
         function min(expr1) {
-            var expr = autofield(expr1),
-                f = function(arr, context) {
+            const expr = autofield(expr1),
+                f = function (arr, context) {
                     if (arr === undefined) {
                         return undefined;
                     }
-                    var m = null;
-                    _.forEach(arr, function(el) {
-                        var val = calc(expr, el, context);
+                    let m = null;
+                    _.forEach(arr, function (el) {
+                        const val = calc(expr, el, context);
                         if (val === undefined) {
                             m = undefined; //if any undefined is found, return undefined
                             return false;
@@ -1370,7 +1356,7 @@
             f.myArguments = arguments;
 
             f.grouping = true;
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.min(expr, context);
             };
             return toSqlFun(f, toSql);
@@ -1384,12 +1370,13 @@
          * @returns {sqlFun}
          */
         function substring(expr1, start, len) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
+            const expr = autofield(expr1),
+                f = function (r, context) {
                     if (r === undefined) {
                         return undefined;
                     }
-                    var vExpr = calc(expr, r, context), vStart, vLen;
+                    const vExpr = calc(expr, r, context);
+                    let vStart, vLen;
                     if (vExpr === undefined) {
                         return undefined;
                     }
@@ -1424,7 +1411,7 @@
             f.myName = 'substring';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.substring(expr, start, len, context);
             };
             return toSqlFun(f, toSql);
@@ -1437,12 +1424,12 @@
          * @returns {sqlFun}
          */
         function convertToInt(expr1) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
+            const expr = autofield(expr1),
+                f = function (r, context) {
                     if (r === undefined) {
                         return undefined;
                     }
-                    var vExpr = calc(expr, r, context);
+                    const vExpr = calc(expr, r, context);
                     if (vExpr === undefined) {
                         return undefined;
                     }
@@ -1458,7 +1445,7 @@
             f.myName = 'convertToInt';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.convertToInt(expr, context);
             };
@@ -1473,12 +1460,12 @@
          * @returns {sqlFun}
          */
         function convertToString(expr1, maxLen) {
-            var expr = autofield(expr1),
-                f = function(r, context) {
+            const expr = autofield(expr1),
+                f = function (r, context) {
                     if (r === undefined) {
                         return undefined;
                     }
-                    var vExpr = calc(expr, r, context);
+                    const vExpr = calc(expr, r, context);
                     if (vExpr === undefined) {
                         return undefined;
                     }
@@ -1494,7 +1481,7 @@
             f.myName = 'convertToString';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.convertToString(expr, maxLen, context);
             };
@@ -1508,24 +1495,23 @@
          * @return {sqlFun}
          */
         function and(arr) {
-            var a = arr,
-                alwaysFalse = false,
-                f;
+            let a = arr;
+            let alwaysFalse = false;
+            let f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
-            var optimizedArgs = _.filter(a, function(el) {
+            const optimizedArgs = _.filter(a, function (el) {
                 if (el === undefined) {
                     return false;
                 }
                 if (el === null) {
                     return false;
                 }
-                //noinspection JSUnresolvedVariable
                 if (el === true || el.isTrue) {
                     return false;
                 }
-                //noinspection JSUnresolvedVariable
+
                 if (el === false || el.isFalse) {
                     alwaysFalse = true;
                 }
@@ -1541,11 +1527,11 @@
             }
 
             f = function(r, context) {
-                var i,
+                let i,
                     someUndefined = false,
                     someNull = false;
                 for (i = 0; i < optimizedArgs.length; i += 1) {
-                    var x = calc(optimizedArgs[i], r, context);
+                    const x = calc(optimizedArgs[i], r, context);
                     if (x === false) {
                         return false;
                     }
@@ -1571,9 +1557,9 @@
             f.myName = 'and';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
-                return formatter.joinAnd(_.map(optimizedArgs, function(v) {
+                return formatter.joinAnd(_.map(optimizedArgs, function (v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -1598,7 +1584,8 @@
             if (keys.length === 0) {
                 return constant(true);
             }
-            var myValues = _.clone(values), //stabilizes input!!
+            const myValues = _.clone(values);
+            let //stabilizes input!!
                 picked;
 
             if (_.isArray(values)) {
@@ -1613,24 +1600,27 @@
                 return constant(false);
             }
 
-            var f = function(r, context) {
+            const f = function (r, context) {
                 if (r === undefined) {
                     return undefined;
                 }
-                var i, field, value;
+                let i, field, value;
                 for (i = 0; i < keys.length; i += 1) {
                     field = keys[i];
                     if (_.isArray(myValues)) {
                         value = calc(myValues[i], r, context);
-                    } else {
+                    }
+                    else {
                         value = myValues[field];
                     }
 
                     if (isNullOrUndefined(r[field]) || isNullOrUndefined(value)) {
                         return false;
                     }
-                    if ((r[field] instanceof Date) && (value instanceof Date)){
-                        if (r[field].valueOf() !== value.valueOf()) return false;
+                    if ((r[field] instanceof Date) && (value instanceof Date)) {
+                        if (r[field].valueOf() !== value.valueOf()) {
+                            return false;
+                        }
                         continue;
                     }
 
@@ -1647,14 +1637,14 @@
             f.myName = 'mcmp';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
-                var k, v;
+            const toSql = function (formatter, context) {
+                let k, v;
 
                 //noinspection JSUnresolvedFunction
                 return formatter.joinAnd(
                     _.map(
                         _.zip(keys, picked),
-                        function(pair) {
+                        function (pair) {
                             k = pair[0];
                             v = pair[1];
                             if (isNullOrUndefined(v)) {
@@ -1682,7 +1672,7 @@
                 return constant(true);
             }
 
-            var exprArr = [],
+            const exprArr = [],
                 myValues = _.clone(example);
 
             _.forEach(_.keys(example), function(k) {
@@ -1713,7 +1703,7 @@
                 return constant(true);
             }
 
-            var exprArr = [],
+            const exprArr = [],
                 myValues = _.clone(example);
 
             _.forEach(_.keys(example), function(k) {
@@ -1737,15 +1727,15 @@
          * @return {sqlFun}
          */
         function sub(expr1, expr2) {
-            var expr = autofield(expr1),
-                f;
+            const expr = autofield(expr1);
+            let f;
             f = function(r, context) {
                 if (r === undefined) {
                     return undefined;
                 }
-                var x = calc(expr, r, context),
+                const x = calc(expr, r, context),
                     y = calc(expr2, r, context);
-                
+
                 if (x === null || y === null) {
                     return null;
                 }
@@ -1761,7 +1751,7 @@
             f.myName = 'sub';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.sub(expr, expr2, context);
             };
             return toSqlFun(f, toSql);
@@ -1776,13 +1766,13 @@
          * @return {sqlFun}
          */
         function div(expr1, expr2) {
-            var expr = autofield(expr1),
-                f;
+            const expr = autofield(expr1);
+            let f;
             f = function(r, context) {
                 if (r === undefined) {
                     return undefined;
                 }
-                var x = calc(expr, r, context),
+                const x = calc(expr, r, context),
                     y = calc(expr2, r, context);
 
                 if (x === null || y === null) {
@@ -1800,7 +1790,7 @@
             f.myName = 'div';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.div(expr, expr2, context);
             };
@@ -1815,17 +1805,17 @@
          * @return {sqlFun}
          */
         function add(values) {
-            var a = values,
+            let a = values,
                 f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
             f = function(r, context) {
-                var i,
+                let i,
                     sum = null,
-                    someUndefined = false
+                    someUndefined = false;
                 for (i = 0; i < a.length; i += 1) {
-                    var x = calc(a[i], r, context);
+                    const x = calc(a[i], r, context);
                     if (x === null) {
                         return null;
                     }
@@ -1839,7 +1829,7 @@
                     }
                 }
                 if (someUndefined) {
-                    return undefined
+                    return undefined;
                 }
                 return sum;
             };
@@ -1850,7 +1840,7 @@
             f.myName = 'add';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.add(a, context);
             };
             return toSqlFun(f, toSql);
@@ -1863,16 +1853,16 @@
          * @return {sqlFun}
          */
         function concat(values) {
-            var a = values,
+            let a = values,
                 f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
             f = function(r, context) {
-                var i,
+                let i,
                     seq = null;
                 for (i = 0; i < a.length; i += 1) {
-                    var x = calc(a[i], r, context);
+                    const x = calc(a[i], r, context);
                     if (x === undefined) {
                         return undefined;
                     }
@@ -1893,7 +1883,7 @@
             f.myName = 'concat';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.concat(a, context);
             };
             return toSqlFun(f, toSql);
@@ -1907,29 +1897,30 @@
          * @returns {sqlFun}
          */
         function sum(expr1) {
-            var expr = autofield(expr1),
-                f = function(values, context) {
+            const expr = autofield(expr1),
+                f = function (values, context) {
                     if (values === undefined) {
                         return undefined;
                     }
                     if (values === null) {
                         return null;
                     }
-                    var a = values;
+                    let a = values;
                     if (!_.isArray(a)) {
                         a = [].slice.call(arguments);
                     }
 
-                    var i,
+                    let i,
                         sum = null;
                     for (i = 0; i < a.length; i += 1) {
-                        var x = calc(expr, a[i], context);
+                        const x = calc(expr, a[i], context);
                         if (x === undefined) {
                             return undefined;
                         }
                         if (sum === null) {
                             sum = x;
-                        } else {
+                        }
+                        else {
                             if (x !== null) {
                                 sum += x;
                             }
@@ -1945,7 +1936,7 @@
             f.myArguments = arguments;
 
             f.grouping = true;
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.sum(expr, context);
             };
 
@@ -1961,17 +1952,17 @@
          * @return {sqlFun}
          */
         function mul(values) {
-            var a = values,
+            let a = values,
                 f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
             f = function(r, context) {
-                var i,
+                let i,
                     prod = null,
                     someUndefined = false;
                 for (i = 0; i < a.length; i += 1) {
-                    var x = calc(a[i], r, context);
+                    const x = calc(a[i], r, context);
                     if (x === null) {
                         return null;
                     }
@@ -1997,8 +1988,8 @@
             f.myName = 'mul';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
-                return formatter.mul(_.map(a, function(v) {
+            const toSql = function (formatter, context) {
+                return formatter.mul(_.map(a, function (v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -2019,8 +2010,8 @@
          */
         function toObject(obj) {
             if (_.isFunction(obj)) {
-                var name = obj.myName;
-                var args = _.map(obj.myArguments, function(arg) {
+                const name = obj.myName;
+                const args = _.map(obj.myArguments, function (arg) {
                     return toObject(arg);
                 });
 
@@ -2028,7 +2019,7 @@
             }
 
             if (_.isArray(obj)) {
-                var arr = _.map(obj, function(item) {
+                const arr = _.map(obj, function (item) {
                     return toObject(item);
                 });
                 return { array: arr };
@@ -2058,13 +2049,13 @@
             }
 
             if (obj.hasOwnProperty('name') && obj.hasOwnProperty('args')) {
-                var name = obj.name;
-                var args = _.map(obj.args, function(arg) {
+                const name = obj.name;
+                const args = _.map(obj.args, function (arg) {
                     return fromObject(arg);
                 });
 
-                var f = dataQuery[name];
-                var result= f.apply(this, args);
+                const f = dataQuery[name];
+                const result = f.apply(this, args);
                 result.alias = obj.alias;
                 return result;
             }
@@ -2080,19 +2071,19 @@
          * @return {sqlFun}
          */
         function list(values) {
-            var a = values,
+            let a = values,
                 f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
 
             f = function(r, context) {
-                var outputList = [],
-                    someNull = false,
+                const outputList = [];
+                let someNull = false,
                     i;
-                
+
                 for (i = 0; i < a.length; i += 1) {
-                    var x = calc(a[i], r, context);
+                    const x = calc(a[i], r, context);
 
                     if (x === undefined) {
                         return undefined;
@@ -2115,8 +2106,8 @@
             f.myName = 'list';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
-                return formatter.list(_.map(a, function(v) {
+            const toSql = function (formatter, context) {
+                return formatter.list(_.map(a, function (v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -2126,13 +2117,13 @@
    
         /**
          * @method bitwiseNot
-         * @param {sqlFun|string|object} }  expression note: this is autofield-ed, so if you can use a field name for it
+         * @param {sqlFun|string|object}  expression note: this is auto-field, so if you can use a field name for it
          * @return {sqlFun}
          */
         function bitwiseNot(expression) {
-            var expr = autofield(expression),
-                f = function(r, context) {
-                    var v1 = calc(expr, r, context);
+            const expr = autofield(expression),
+                f = function (r, context) {
+                    const v1 = calc(expr, r, context);
                     if (isNullOrUndefined(v1)) {
                         return v1;
                     }
@@ -2148,7 +2139,7 @@
             f.myName = 'bitwiseNot';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.bitwiseNot(expr, context);
             };
             return toSqlFun(f, toSql);
@@ -2160,21 +2151,19 @@
          * @return {sqlFun}
          */
         function bitwiseAnd(arr) {
-            var a = arr,
+            let a = arr,
                 f;
-            
+
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
 
-            var optimizedArgs = _.filter(a, function(el) {
+            const optimizedArgs = _.filter(a, function (el) {
                 if (el === undefined) {
                     return false;
                 }
-                if (el === null) {
-                    return false;
-                }
-                return true;
+                return el !== null;
+
             });
 
             if (optimizedArgs.length === 0) {
@@ -2182,12 +2171,12 @@
             }
 
             f = function(r, context) {
-                var result = null,
+                let result = null,
                     someUndefined = false,
                     i;
-                
+
                 for (i = 0; i < optimizedArgs.length; i += 1) {
-                    var x = calc(optimizedArgs[i], r, context);
+                    const x = calc(optimizedArgs[i], r, context);
                     if (x === null) {
                         return null;
                     }
@@ -2213,9 +2202,9 @@
             f.myName = 'bitwiseAnd';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
-                return formatter.bitwiseAnd(_.map(optimizedArgs, function(v) {
+                return formatter.bitwiseAnd(_.map(optimizedArgs, function (v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -2229,21 +2218,19 @@
          * @return {sqlFun}
          */
         function bitwiseOr(arr) {
-            var a = arr,
+            let a = arr,
                 f;
-            
+
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
 
-            var optimizedArgs = _.filter(a, function(el) {
+            const optimizedArgs = _.filter(a, function (el) {
                 if (el === undefined) {
                     return false;
                 }
-                if (el === null) {
-                    return false;
-                }
-                return true;
+                return el !== null;
+
             });
 
             if (optimizedArgs.length === 0) {
@@ -2251,12 +2238,12 @@
             }
 
             f = function(r, context) {
-                var result = null,
+                let result = null,
                     someUndefined = false,
                     i;
-                
+
                 for (i = 0; i < optimizedArgs.length; i += 1) {
-                    var x = calc(optimizedArgs[i], r, context);
+                    const x = calc(optimizedArgs[i], r, context);
                     if (x === null) {
                         return null;
                     }
@@ -2282,9 +2269,9 @@
             f.myName = 'bitwiseOr';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
-                return formatter.bitwiseOr(_.map(optimizedArgs, function(v) {
+                return formatter.bitwiseOr(_.map(optimizedArgs, function (v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -2298,21 +2285,19 @@
          * @return {sqlFun}
          */
         function bitwiseXor(arr) {
-            var a = arr,
+            let a = arr,
                 f;
-            
+
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
 
-            var optimizedArgs = _.filter(a, function(el) {
+            const optimizedArgs = _.filter(a, function (el) {
                 if (el === undefined) {
                     return false;
                 }
-                if (el === null) {
-                    return false;
-                }
-                return true;
+                return el !== null;
+
             });
 
             if (optimizedArgs.length === 0) {
@@ -2320,12 +2305,12 @@
             }
 
             f = function(r, context) {
-                var result = null,
+                let result = null,
                     someUndefined = false,
                     i;
-                
+
                 for (i = 0; i < optimizedArgs.length; i += 1) {
-                    var x = calc(optimizedArgs[i], r, context);
+                    const x = calc(optimizedArgs[i], r, context);
                     if (x === null) {
                         return null;
                     }
@@ -2351,9 +2336,9 @@
             f.myName = 'bitwiseXor';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
-                return formatter.bitwiseXor(_.map(optimizedArgs, function(v) {
+                return formatter.bitwiseXor(_.map(optimizedArgs, function (v) {
                     //noinspection JSUnresolvedFunction
                     return formatter.toSql(v, context);
                 }));
@@ -2370,13 +2355,13 @@
          * @return {sqlFun}
          */
         function modulus(expr1, expr2) {
-            var expr = autofield(expr1),
-                f;
+            const expr = autofield(expr1);
+            let f;
             f = function(r, context) {
                 if (r === undefined) {
                     return undefined;
                 }
-                var x = calc(expr, r, context),
+                const x = calc(expr, r, context),
                     y = calc(expr2, r, context);
 
                 if (x === null || y === null) {
@@ -2394,7 +2379,7 @@
             f.myName = 'modulus';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 //noinspection JSUnresolvedFunction
                 return formatter.modulus(expr, expr2, context);
             };
@@ -2408,13 +2393,13 @@
          * @return {sqlFun}
          */
         function doPar(expr) {
-            var a = expr,
-                alwaysFalse = false,
-                f;
+            let a = expr;
+            let alwaysFalse = false;
+            let f;
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
-            var optimizedArgs = _.filter(a, function(el) {
+            const optimizedArgs = _.filter(a, function (el) {
                 if (el === undefined) {
                     return false;
                 }
@@ -2446,14 +2431,14 @@
             f.myName = 'doPar';
             f.myArguments = arguments;
 
-            var toSql = function(formatter, context) {
+            const toSql = function (formatter, context) {
                 return formatter.doPar(a, context);
             };
             return toSqlFun(f, toSql);
         }
         
   
-        var dataQuery = {
+        const dataQuery = {
             context: context,
             calc: calc,
             add: add,
@@ -2513,7 +2498,7 @@
 
         // Some AMD build optimizers like r.js check for condition patterns like the following:
         //noinspection JSUnresolvedVariable
-        if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+        if (typeof define === 'function' && typeof define.amd === 'object' && define.amd) {
             // Expose lodash to the global object when an AMD loader is present to avoid
             // errors in cases where lodash is loaded by a script tag and not intended
             // as an AMD module. See http://requirejs.org/docs/errors.html#mismatch for
