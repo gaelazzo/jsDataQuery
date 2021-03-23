@@ -69,7 +69,8 @@
 
         /**
          * Function with ability to be converted to sql. When invoked gives a result depending on the arguments.
-         * @class sqlFun
+         * @function sqlFun
+         * @type function
          * @public
          * @constructor
          */
@@ -2117,7 +2118,7 @@
    
         /**
          * @method bitwiseNot
-         * @param {sqlFun|string|object}  expression note: this is auto-field, so if you can use a field name for it
+         * @param {sqlFun|string|object|function}  expression note: this is auto-field, so if you can use a field name for it
          * @return {sqlFun}
          */
         function bitwiseNot(expression) {
