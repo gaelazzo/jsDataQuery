@@ -1,10 +1,10 @@
 'use strict';
 /*globals beforeEach,jsDataSet,afterEach,describe,jasmine,it,expect,inject */
 
-var $q = jsDataQuery;
+const $q = jsDataQuery;
 
 describe('DataQuery functions', function () {
-    var ds;
+    let ds;
 
     function fieldGet(field) {
         return function (obj) {
@@ -16,19 +16,19 @@ describe('DataQuery functions', function () {
     describe('EVAL requirements', function () {
 
         it('eval should access local variable and return something', function () {
-            var ctx = {a: 1, b: 2, c: {somedata: 3}},
+            const ctx = {a: 1, b: 2, c: {somedata: 3}},
                 res = eval('ctx.c.somedata');
             expect(res).toBe(3);
         });
 
         it('eval should access local variable and return something', function () {
-            var ctx = {a: 1, b: 2, c: {somedata: 3}},
+            const ctx = {a: 1, b: 2, c: {somedata: 3}},
                 res = eval('ctx.c.somedata');
             expect(res).toBe(3);
         });
 
         it('eval should be able to call functions', function () {
-            var ctx = {
+            const ctx = {
                     a: 1, b: 2, c: {somedata: 3}, d: function (x) {
                         return x * 3;
                     }
@@ -38,7 +38,7 @@ describe('DataQuery functions', function () {
         });
 
         it('functions called by eval have access to parent scope', function () {
-            var scopeVar = 100,
+            const scopeVar = 100,
                 ctx = {
                     a: 1, b: 2, c: {somedata: 3}, d: function (x) {
                         return x * scopeVar;
@@ -51,30 +51,30 @@ describe('DataQuery functions', function () {
 
     describe('ctx function', function () {
         it('simple fields should be correctly evaluated', function () {
-            var env = {a: 1, b: 2},
+            const env = {a: 1, b: 2},
                 ctxFun = $q.context('a');
-            expect(ctxFun(env)).toBe(1);
+            expect(ctxFun(null,env)).toBe(1);
             env.a = 10;
-            expect(ctxFun(env)).toBe(10);
+            expect(ctxFun(null,env)).toBe(10);
         });
 
         it('array elements should be correctly evaluated', function () {
-            var env = {a: 1, b: 2, c: ['a', 'b', 'c']},
+            const env = {a: 1, b: 2, c: ['a', 'b', 'c']},
                 ctxFun = $q.context('c');
-            expect(ctxFun(env)[1]).toBe('b');
+            expect(ctxFun(null,env)[1]).toBe('b');
             env.c[1] = 'q';
-            expect(ctxFun(env)[1]).toBe('q');
+            expect(ctxFun(null,env)[1]).toBe('q');
         });
 
         it('field objects should be correctly evaluated', function () {
-            var env = {a: 1, b: 2, c: {a: 'AA', b: 'BB'}},
+            const env = {a: 1, b: 2, c: {a: 'AA', b: 'BB'}},
                 js = function (env) {
                     return env.c.b;
                 },
                 ctxFun = $q.context('c');
-            expect(ctxFun(env).b).toBe('BB');
+            expect(ctxFun(null,env).b).toBe('BB');
             env.c.b = 'q';
-            expect(ctxFun(env).b).toBe('q');
+            expect(ctxFun(null,env).b).toBe('q');
         });
 
     });
@@ -86,7 +86,7 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.eq should return a function', function () {
-            var x = 1,
+            const x = 1,
                 y = 1,
                 f = $q.eq(x, y);
             expect(f).toEqual(jasmine.any(Function));
@@ -94,7 +94,7 @@ describe('DataQuery functions', function () {
 
 
         it('$q.eq between equal constants should return true', function () {
-            var x = 1,
+            let x = 1,
                 y = 1,
                 f = $q.eq(x, y);
             expect(f({})).toBeTruthy();
@@ -104,9 +104,9 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.eq between different constants should return false', function () {
-            var x = 1,
-                y = 2,
-                f = $q.eq(x, y);
+            let x = 1,
+                y = 2;
+            const f = $q.eq(x, y);
             expect(f({})).toBeFalsy();
             x = 2;
             expect(f({})).toBeFalsy();
@@ -116,9 +116,9 @@ describe('DataQuery functions', function () {
             expect(f({})).toBeFalsy();
         });
         it('comparing values with $q.eq between type does matter (1 <> \'1\')', function () {
-            var x = 1,
-                y = '1',
-                f = $q.eq(x, y);
+            let x = 1,
+                y = '1';
+            const f = $q.eq(x, y);
             expect(f({})).toBeFalsy();
             y = 1;
             expect(f({})).toBeFalsy();
@@ -128,26 +128,26 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing values with $q.eq between type does matter (1 <> true)', function () {
-            var x = 1,
+            const x = 1,
                 y = true,
                 f = $q.eq(x, y);
             expect(f({})).toBeFalsy();
         });
         it('comparing values with $q.eq between type does matter (0 <> null)', function () {
-            var x = null,
+            const x = null,
                 y = 0,
                 f = $q.eq(x, y);
             expect(f({})).toBeFalsy();
         });
 
         it('comparing values with $q.eq:  null and undefined are considered equal', function () {
-            var x = {a: null},
+            const x = {a: null},
                 f = $q.eq($q.constant(x.a), $q.constant(x.b));
             expect(f({})).toBeTruthy();
         });
 
         it('comparing values through field equal', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 f = $q.eq($q.field('a'), 1);
             expect(f(x)).toBeTruthy();
             x.a = 2;
@@ -155,7 +155,7 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing values through field not equal', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 f = $q.eq($q.field('a'), 2);
             expect(f(x)).toBeFalsy();
             x.a = 2;
@@ -163,7 +163,7 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing two equal fields', function () {
-            var x = {a: 1, b: 2, c: 2},
+            const x = {a: 1, b: 2, c: 2},
                 f = $q.eq($q.field('b'), $q.field('c'));
             expect(f(x)).toBeTruthy();
             x.b = 1;
@@ -171,7 +171,7 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing two different fields', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 f = $q.eq($q.field('b'), $q.field('c'));
             expect(f(x)).toBeFalsy();
             x.b = 3;
@@ -179,7 +179,7 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing with undefined gives false', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 f = $q.eq($q.field('b'), $q.field('f'));
             expect(f(x)).toBeFalsy();
             x.f = 2;
@@ -187,16 +187,16 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing with undefined object gives undefined', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 f = $q.eq($q.field('b'), undefined);
             expect(f(x)).toBeUndefined();
         });
 
 
         it('isNullOrEq with first param null is true', function () {
-            var x = {a: 1, b: 2, c: 3},
-                y = 4,
-                f = $q.isNullOrEq($q.field('d'), y);
+            const x = {a: 1, b: 2, c: 3};
+            let y = 4;
+            const f = $q.isNullOrEq($q.field('d'), y);
             expect(f(x)).toBeTruthy();
             y = 5;
             expect(f(x)).toBeTruthy();
@@ -205,10 +205,10 @@ describe('DataQuery functions', function () {
         });
 
         it('isNullOrEq with first param not null is like an eq', function () {
-            var x = {a: 1, b: 2, c: 3},
-                y = 2,
-                f = $q.isNullOrEq($q.field('b'), y),
-                g;
+            const x = {a: 1, b: 2, c: 3};
+            let y = 2;
+            const f = $q.isNullOrEq($q.field('b'), y);
+            let g;
             expect(f(x)).toBeTruthy();
             g = $q.isNullOrEq($q.field('c'), y);
             expect(g(x)).toBeFalsy();
@@ -219,10 +219,10 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing two equal fields using autofield for first param', function () {
-            var x = {a: 1, b: 2, c: 2},
-                y = 2,
-                field = 'b',
-                f = $q.eq(field, y);
+            const x = {a: 1, b: 2, c: 2};
+            let y = 2,
+                field = 'b';
+            const f = $q.eq(field, y);
             expect(f(x)).toBeTruthy();
             expect(f.isTrue).toBeUndefined();
             field = 'a';
@@ -233,30 +233,30 @@ describe('DataQuery functions', function () {
         });
 
         it('comparing two equal fields using autofield for first param (with null  as value)', function () {
-            var x = {a: 1, b: null, c: 2},
+            const x = {a: 1, b: null, c: 2},
                 f = $q.eq('b', 2);
             expect(f(x)).toBeFalsy();
             expect(f.isFalse).toBeUndefined();
         });
 
         it('comparing two equal fields using autofield for first param (with undefined as value)', function () {
-            var x = {a: 1, b: null, c: 2},
+            const x = {a: 1, b: null, c: 2},
                 f = $q.eq('f', 2);
             expect(f(x)).toBeFalsy();
             expect(f.isFalse).toBeUndefined();
         });
 
         it('comparing two equal fields using autofield for first param (with undefined as value) call without params', function () {
-            var x = {a: 1, b: null, c: 2},
+            const x = {a: 1, b: null, c: 2},
                 f = $q.eq('f', 2);
             expect(f()).toBeUndefined();
         });
 
 
         it('comparing two different fields using autofield for first param', function () {
-            var x = {a: 1, b: 2, c: 3},
-                c2 = $q.field('c'),
-                f = $q.eq('b', c2); //f should compare field b with field c
+            const x = {a: 1, b: 2, c: 3};
+            let c2 = $q.field('c');
+            const f = $q.eq('b', c2); //f should compare field b with field c
             expect(f(x)).toBeFalsy();
             c2 = $q.field('b');
             expect(f(x)).toBeFalsy();
@@ -282,72 +282,72 @@ describe('DataQuery functions', function () {
         });
 
         it('isIn returns a function', function () {
-            var f = $q.isIn('q', ['a', 'A', ' ', null, 1]);
+            const f = $q.isIn('q', ['a', 'A', ' ', null, 1]);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('isIn returns a function with evaluated fields', function () {
-            var f = $q.isIn('q', ['a', 'A', $q.field('x', 'myTable'), null, 1]);
+            const f = $q.isIn('q', ['a', 'A', $q.field('x', 'myTable'), null, 1]);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('isIn(x) returns true if element in list', function () {
-            var xx = {x: 1, q: 1},
+            const xx = {x: 1, q: 1},
                 f = $q.isIn('q', ['a', 'A', $q.field('x', 'myTable'), null, 1]);
             expect(f(xx)).toBeTruthy();
         });
 
         it('isIn(x) returns false if element not in list', function () {
-            var xx = {x: 1, q: 3},
+            const xx = {x: 1, q: 3},
                 f = $q.isIn('q', ['a', 'A', $q.field('x', 'myTable'), null, 1]);
             expect(f(xx)).toBeFalsy();
         });
 
         it('isIn(x) returns false on empty list', function () {
-            var xx = {x: 1, q: 3},
+            const xx = {x: 1, q: 3},
                 f = $q.isIn('q', []);
             expect(f(xx)).toBeFalsy();
         });
 
         it('isIn(x) returns false if some element undefined', function () {
-            var xx = {x: 1, q: 3},
+            const xx = {x: 1, q: 3},
                 f = $q.isIn('q', ['a', 'b', undefined]);
             expect(f(xx)).toBeFalsy();
         });
 
         it('isIn(x) returns undefined  if object is undefined', function () {
-            var xx = {x: 1, q: 3},
+            const xx = {x: 1, q: 3},
                 f = $q.isIn('q', ['a', 'b', undefined]);
             expect(f()).toBeUndefined();
         });
 
 
         it('isIn(x) compares different if types are different', function () {
-            var xx = {x: 1, q: '1'},
+            const xx = {x: 1, q: '1'},
                 f = $q.isIn('q', ['a', 'A', $q.field('x', 'myTable'), null, 1]);
             expect(f(xx)).toBeFalsy();
         });
 
         it('like with % compares well', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.like('a', 'AAB%');
             expect(f(xx)).toBeTruthy();
         });
 
         it('like with _ compares well', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.like('a', 'AAB_CC');
             expect(f(xx)).toBeTruthy();
         });
 
         it('like with a non-string return false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.like('a', 5);
             expect(f(xx)).toBeFalsy();
         });
 
         it('like with null return null', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.like('a', null);
             expect(f(xx)).toBe(null);
         });
@@ -357,16 +357,16 @@ describe('DataQuery functions', function () {
     describe('concatenation with AND', function () {
 
         it('empty AND shold give a function with isTrue field set', function () {
-            var f = $q.and([]);
+            const f = $q.and([]);
             expect(f.isTrue).toBe(true);
         });
 
         it('and of false function with other function should be the always false function', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 cond1 = $q.like('a', 'AAB_CC'),
-                cond2 = $q.eq('q', 1),
-                cond3 = $q.constant(false),
-                f = $q.and(cond1, cond2, cond3);
+                cond2 = $q.eq('q', 1);
+            let cond3 = $q.constant(false);
+            const f = $q.and(cond1, cond2, cond3);
             expect(f.isFalse).toBe(true);
             cond3 = $q.constant(true);
             expect(f.isFalse).toBe(true); //check stability of f
@@ -374,11 +374,11 @@ describe('DataQuery functions', function () {
 
 
         it('and of false function with other function should be the always false function (by array)', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 cond1 = $q.like('a', 'AAB_CC'),
-                cond2 = $q.eq('q', 1),
-                cond3 = $q.constant(false),
-                f = $q.and([cond1, cond2, cond3]);
+                cond2 = $q.eq('q', 1);
+            let cond3 = $q.constant(false);
+            const f = $q.and([cond1, cond2, cond3]);
             expect(f.isFalse).toBe(true);
             cond3 = $q.constant(true);
             expect(f.isFalse).toBe(true); //check stability of f
@@ -386,17 +386,17 @@ describe('DataQuery functions', function () {
 
 
         it('and of a series of function including one undefined and one false gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq('q', 1), undefined, $q.constant(false));
             expect(f.isFalse).toBe(true);
         });
 
         it('and of a series of function including one undefined and one false gives false (by array)', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 cond1 = $q.like('a', 'AAB_CC'),
-                cond2 = $q.eq('q', 1),
-                cond3 = $q.constant(false),
-                f = $q.and([cond1, cond2, undefined, cond3]);
+                cond2 = $q.eq('q', 1);
+            let cond3 = $q.constant(false);
+            const f = $q.and([cond1, cond2, undefined, cond3]);
             expect(f.isFalse).toBe(true);
             cond3 = $q.constant(true);
             expect(f.isFalse).toBe(true);
@@ -404,16 +404,16 @@ describe('DataQuery functions', function () {
         });
 
         it('and of a series of function including one undefined and one dinamically-false gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq('q', 2), undefined);
             expect(f(xx)).toBe(false);
         });
 
         it('and of a series of function including one undefined and one dinamically-false gives false (by array)', function () {
-            var xx = {a: 'AABBCC', q: '1'},
-                cond1 = $q.like('a', 'AAB_CC'),
-                cond2 = $q.eq('q', 2),
-                f = $q.and([cond1, cond2, undefined]);
+            const xx = {a: 'AABBCC', q: '1'},
+                cond1 = $q.like('a', 'AAB_CC');
+            let cond2 = $q.eq('q', 2);
+            const f = $q.and([cond1, cond2, undefined]);
             expect(f(xx)).toBe(false);
             cond2 = $q.eq('q', '1');
             expect(f(xx)).toBe(false);
@@ -421,40 +421,40 @@ describe('DataQuery functions', function () {
 
 
         it('and of a series of function in an undefined context with an always false function gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant('q'), 2), undefined);
             expect(f()).toBe(false);
         });
 
         it('AND of a series of function in an undefined context with an always false function gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(3), $q.constant(1))), undefined);
             expect(f()).toBe(false);
         });
 
         it('AND of a series of function in an undefined context with an always false function gives false constant fun', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(3), $q.constant(1))), undefined);
             expect(f.isFalse).toBe(true);
         });
         it('AND of a series of function in an undefined context not always gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.field('a'), $q.constant(1))), undefined);
             expect(f()).toBeFalsy();
         });
 
         it('and of a series of function including one null and one false gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq('q', 1), null, $q.constant(false));
             expect(f.isFalse).toBe(true);
         });
 
         it('and of a series of function including one null and one false gives false (by array)', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 cond1 = $q.like('a', 'AAB_CC'),
-                cond2 = $q.eq('q', 1),
-                cond3 = $q.constant(false),
-                f = $q.and([cond1, cond2, null, cond3]);
+                cond2 = $q.eq('q', 1);
+            let cond3 = $q.constant(false);
+            const f = $q.and([cond1, cond2, null, cond3]);
             expect(f.isFalse).toBe(true);
             cond3 = $q.constant(true);
             expect(f.isFalse).toBe(true);
@@ -462,35 +462,35 @@ describe('DataQuery functions', function () {
         });
 
         it('and of a series of function including one null and one dinamically-false gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq('q', 2), null);
             expect(f(xx)).toBe(false);
         });
 
         it('and of a series of function including one null and one dinamically-false gives false (by array)', function () {
-            var xx = {a: 'AABBCC', q: '1'},
-                cond1 = $q.like('a', 'AAB_CC'),
-                cond2 = $q.eq('q', 2),
-                f = $q.and([cond1, cond2, null]);
+            const xx = {a: 'AABBCC', q: '1'},
+                cond1 = $q.like('a', 'AAB_CC');
+            let cond2 = $q.eq('q', 2);
+            const f = $q.and([cond1, cond2, null]);
             expect(f(xx)).toBe(false);
             cond2 = $q.eq('q', '1');
             expect(f(xx)).toBe(false);
         });
 
         it('and of a series of function in a null context with an always false function gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant('q'), 2), null);
             expect(f()).toBe(false);
         });
 
         it('AND of a series of function in a null context with an always false function gives false', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(3), $q.constant(1))), null);
             expect(f()).toBe(false);
         });
 
         it('AND of a series of function in a null context with an always false function gives false constant fun', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.and($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(3), $q.constant(1))), null);
             expect(f.isFalse).toBe(true);
         });
@@ -499,61 +499,61 @@ describe('DataQuery functions', function () {
 
     describe('concatenation with OR', function () {
         it('empty OR shold give a function with isFalse field set', function () {
-            var f = $q.or([]);
+            const f = $q.or([]);
             expect(f.isFalse).toBe(true);
         });
 
         it('OR of true function with other function should be the always true function', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq('q', 1), $q.constant(true));
             expect(f.isTrue).toBe(true);
         });
 
 
         it('OR of a series of function including one undefined and one true gives true', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq('q', 1), undefined, $q.constant(true));
             expect(f.isTrue).toBe(true);
         });
 
         it('OR of a series of function in an undefined context with an always true function gives true', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(1), $q.constant(1))), undefined);
             expect(f()).toBe(true);
         });
 
         it('OR of a series of function in an undefined context with an always true function gives the true constant function', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(1), $q.constant(1))), undefined);
             expect(f.isTrue).toBe(true);
         });
 
         it('OR of a series of function in an undefined context not always gives true', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.field('a'), $q.constant(1))), undefined);
             expect(f()).toBeFalsy();
         });
 
         it('OR of a series of function including one null and one true gives true', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq('q', 1), null, $q.constant(true));
             expect(f.isTrue).toBe(true);
         });
 
         it('OR of a series of function in a null context with an always true function gives true', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(1), $q.constant(1))), null);
             expect(f()).toBe(true);
         });
 
         it('OR of a series of function in a null context with an always true function gives the true constant function', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.constant(1), $q.constant(1))), null);
             expect(f.isTrue).toBe(true);
         });
 
         it('OR of a series of function in a null context not always gives true', function () {
-            var xx = {a: 'AABBCC', q: '1'},
+            const xx = {a: 'AABBCC', q: '1'},
                 f = $q.or($q.like('a', 'AAB_CC'), $q.eq($q.constant(2), $q.add($q.field('a'), $q.constant(1))), null);
             expect(f()).toBeFalsy();
         });
@@ -562,7 +562,7 @@ describe('DataQuery functions', function () {
 
     describe('min, max functions', function () {
         it('min should give the minimum expression value in an array', function () {
-            var r1 = {a: 1, b: 2},
+            const r1 = {a: 1, b: 2},
                 r2 = {a: 2, b: 2},
                 r3 = {a: 3, b: null},
                 r4 = {a: 1, b: -1},
@@ -582,7 +582,7 @@ describe('DataQuery functions', function () {
 
     describe('add, mul, sum functions', function () {
         it('should make the add/ mul / sum skipping nulls when required', function () {
-            var r1 = {a: 1, b: 2, c: null},
+            const r1 = {a: 1, b: 2, c: null},
                 r2 = {a: 2, b: 2},
                 r3 = {a: 3, b: null},
                 r4 = {a: 1, b: -1},
@@ -598,8 +598,7 @@ describe('DataQuery functions', function () {
 
     describe('sub / div / modulus /minus functions', function () {
         it('sub/div/modulus should subtract / divide /mod', function () {
-            var
-                r1 = {a: 1, b: 2, c: null},
+            const r1 = {a: 1, b: 2, c: null},
                 r2 = {a: 2, b: 2},
                 r3 = {a: 3, b: null},
                 r4 = {a: 1, b: -1},
@@ -616,8 +615,7 @@ describe('DataQuery functions', function () {
         });
 
         it('minus expr should change sign to expr', function () {
-            var
-                r1 = {a: 1, b: 2, c: null},
+            const r1 = {a: 1, b: 2, c: null},
                 r2 = {a: 2, b: 2},
                 r3 = {a: 3, b: null},
                 r4 = {a: 1, b: -1},
@@ -633,8 +631,7 @@ describe('DataQuery functions', function () {
 
     describe('substring should extract a substring like sql server', function () {
         it('should extract a substring of specified size and position', function () {
-            var
-                r1 = {a: 'a1234', b: 'WXYZ', c: null},
+            const r1 = {a: 'a1234', b: 'WXYZ', c: null},
                 r2 = {a: 'a2345', b: 2},
                 r3 = {a: 'b1234', b: null},
                 r4 = {a: 'c2345', b: -1},
@@ -653,15 +650,15 @@ describe('DataQuery functions', function () {
     describe('convertToInt should convert strings into numbers', function () {
 
         it('should  convert integers', function () {
-            var r1 = {a: '123', b: '012', c: '1234.56'};
+            const r1 = {a: '123', b: '012', c: '1234.56'};
             expect($q.convertToInt('a')(r1)).toBe(123);
         });
         it('should  convert 0 prefixed numbers', function () {
-            var r1 = {a: '123', b: '012', c: '1234.56'};
+            const r1 = {a: '123', b: '012', c: '1234.56'};
             expect($q.convertToInt('b')(r1)).toBe(12);
         });
         it('should  convert decimal numbers', function () {
-            var r1 = {a: '123', b: '012', c: '1234.56'};
+            const r1 = {a: '123', b: '012', c: '1234.56'};
             expect($q.convertToInt('c')(r1)).toBe(1234);
         });
     });
@@ -669,12 +666,12 @@ describe('DataQuery functions', function () {
     describe('convertToString should convert object into strings ', function () {
 
         it('should  convert integers', function () {
-            var r1 = {a: 123, b: '012', c: '1234.56'};
+            const r1 = {a: 123, b: '012', c: '1234.56'};
             expect($q.convertToString('a')(r1)).toBe('123');
         });
 
         it('should  convert decimal numbers', function () {
-            var r1 = {a: '123', b: '012', c: 1234.56};
+            const r1 = {a: '123', b: '012', c: 1234.56};
             expect($q.convertToString('c')(r1)).toBe('1234.56');
         });
     });
@@ -685,7 +682,7 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.mcmp should return a function', function () {
-            var x = ['a', 'b'],
+            const x = ['a', 'b'],
                 y = {a: 1, b: 2},
                 f = $q.mcmp(x, y);
             expect(f).toEqual(jasmine.any(Function));
@@ -693,7 +690,7 @@ describe('DataQuery functions', function () {
 
 
         it('$q.mcmp between compatible rows should return true', function () {
-            var k = ['a', 'b'],
+            const k = ['a', 'b'],
                 y = {a: 1, b: 2, c: 4},
                 z = {a: 1, b: 2, c: 3},
                 f = $q.mcmp(k, y);
@@ -703,7 +700,7 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.mcmp with no keys should be the true constant', function () {
-            var k = [],
+            const k = [],
                 y = {a: 1, b: 2, c: 4},
                 z = {a: 1, b: 2, c: 3},
                 f = $q.mcmp(k, y);
@@ -711,7 +708,7 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.mcmp with some null values should be the false constant', function () {
-            var k = ['a', 'b'],
+            const k = ['a', 'b'],
                 y = {a: null, b: 2, c: 4},
                 z = {a: 1, b: 2, c: 3},
                 f = $q.mcmp(k, y);
@@ -723,19 +720,19 @@ describe('DataQuery functions', function () {
     describe('toObject should convert a DataQuery to a plain object', function () {
 
         it('$q.toObject should not return null', function () {
-            var x = ['a', 'b'],
+            const x = ['a', 'b'],
                 obj = $q.toObject(x);
             expect(obj).not.toBe(null);
         });
 
         it('$q.toObject should not return null', function () {
-            var x = 5,
+            const x = 5,
                 obj = $q.toObject(x);
             expect(obj).not.toBe(null);
         });
 
         it('$q.toObject should not return null', function () {
-            var x = 15,
+            const x = 15,
                 y = [2, 5],
                 f = $q.sub(x, $q.mul(y)),
                 obj = $q.toObject(f);
@@ -743,7 +740,7 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.toObject should return a composed expression stringified', function () {
-            var x = {a: 1, b: 2},
+            const x = {a: 1, b: 2},
                 f = $q.bitwiseAnd('a', $q.bitwiseNot('b')),
                 obj = $q.toObject(f);
             expect(JSON.stringify(obj)).toBe(
@@ -752,7 +749,7 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.toObject should return a list of expressions stringified', function () {
-            var x = {a: false, b: true, c:false},
+            const x = {a: false, b: true, c: false},
                 expr1 = $q.not('a'),
                 expr2 = $q.or('a', $q.field('b')),
                 f = $q.list(expr1, expr2),
@@ -767,13 +764,13 @@ describe('DataQuery functions', function () {
     describe('fromObject should convert a plain object to a DataQuery', function () {
 
         it('$q.fromObject should return an integer value', function () {
-            var obj = {"value": 5},
+            const obj = {"value": 5},
                 f = $q.fromObject(obj);
             expect(f).toEqual(5);
         });
 
         it('$q.fromObject should return an array of integers', function () {
-            var obj = {"array": [{"value": 1}, {"value": 2}, {"value": 10}]},
+            const obj = {"array": [{"value": 1}, {"value": 2}, {"value": 10}]},
                 f = $q.fromObject(obj);
             expect(f).toEqual(jasmine.any(Array));
             _.forEach(f, function (value) {
@@ -782,13 +779,16 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.fromObject should return a function', function () {
-            var obj = {"name": "sub", "args": [{"value": 15}, {"name": "constant", "args": [{"value": 10}]}]},
+            const obj = {"name": "sub", "args": [{"value": 15}, {"name": "constant", "args": [{"value": 10}]}]},
                 f = $q.fromObject(obj);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('$q.fromObject with a list object should return a function', function () {
-            var obj = {"name":"list","args":[{"name":"field","args":[{"value":"a"}]},{"name":"field","args":[{"value":"b"}]}]},
+            const obj = {
+                    "name": "list",
+                    "args": [{"name": "field", "args": [{"value": "a"}]}, {"name": "field", "args": [{"value": "b"}]}]
+                },
                 f = $q.fromObject(obj);
             expect(f).toEqual(jasmine.any(Function));
         });
@@ -798,28 +798,28 @@ describe('DataQuery functions', function () {
     describe('Deserialized DataQuery should be coherent with the serialized one', function () {
 
         it('Coherence check with primitive types', function () {
-            var a = 10,
+            const a = 10,
                 obj = $q.toObject(a),
                 b = $q.fromObject(obj);
             expect(b).toEqual(a);
         });
 
         it('Coherence check with arrays', function () {
-            var arr1 = [1, 2, 3],
+            const arr1 = [1, 2, 3],
                 obj = $q.toObject(arr1),
                 arr2 = $q.fromObject(obj);
             expect(arr2).toEqual(arr1);
         });
 
         it('Coherence check with functions', function () {
-            var f = $q.and($q.eq(1, 1), $q.gt(2, 1)), a = f(),
+            const f = $q.and($q.eq(1, 1), $q.gt(2, 1)), a = f(),
                 obj = $q.toObject(f),
                 g = $q.fromObject(obj), b = g();
             expect(a).toEqual(b);
         });
 
         it('Coherence check with lists', function () {
-            var x = {a: false, b: true, c:false},                
+            const x = {a: false, b: true, c: false},
                 expr1 = $q.not('a'),
                 expr2 = $q.or($q.field('a'), $q.field('b')),
                 expr3 = $q.and($q.field('b'), $q.field('c')),
@@ -839,13 +839,13 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.list should return a function', function () {
-            var x = 1,
+            const x = 1,
                 f = $q.list(x);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('list should return an array with length equal to number of operands', function () {
-            var x = {a: false, b: true, c:false},                
+            const x = {a: false, b: true, c: false},
                 expr1 = $q.not('a'),
                 expr2 = $q.or($q.field('a'), $q.field('b')),
                 expr3 = $q.and($q.field('b'), $q.field('c')),
@@ -860,21 +860,21 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.bitwiseNot should return a function', function () {
-            var x = 1,
+            const x = 1,
                 f = $q.bitwiseNot(x);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('$q.bitwiseNot of a constant should return ~(constant)', function () {
-            var x = 1,
-                f = $q.bitwiseNot(x);
+            let x = 1;
+            const f = $q.bitwiseNot(x);
             expect(f({})).toBe(-2);
             x = 5;
             expect(f({})).toBe(-2);
         });
 
         it('$q.bitwiseNot of an operand should return ~(operand)', function () {
-            var x = {a: 1, b: 2},
+            const x = {a: 1, b: 2},
                 f = $q.bitwiseNot($q.field('a'), 1);
             expect(f(x)).toBe(-2);
             x.a = 5;
@@ -896,14 +896,14 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.bitwiseAnd should return a function', function () {
-            var x = 1,
+            const x = 1,
                 y = 2,
                 f = $q.bitwiseAnd(x, y);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('bitwiseAnd of same value should return same value', function () {
-            var x = {a: 3, b: 3},
+            const x = {a: 3, b: 3},
                 y = {a: 4, b: 4},
                 f = $q.bitwiseAnd($q.field('a'), $q.field('b'));
             expect(f(x)).toBe(3);
@@ -911,7 +911,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseAnd works for multiple values', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.field('a'),
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
@@ -920,7 +920,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseAnd works for multiple value (by array)', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.field('a'),
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
@@ -929,7 +929,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseAnd works for composite bitwise expressions', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.bitwiseNot('a'),
                 operand2 = $q.bitwiseOr($q.field('a'), $q.field('b')),
                 operand3 = $q.bitwiseOr($q.field('b'), $q.field('c')),
@@ -944,14 +944,14 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.bitwiseOr should return a function', function () {
-            var x = 1,
+            const x = 1,
                 y = 2,
                 f = $q.bitwiseOr(x, y);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('bitwiseOr of same value should return same value', function () {
-            var x = {a: 3, b: 3},
+            const x = {a: 3, b: 3},
                 y = {a: 4, b: 4},
                 f = $q.bitwiseOr($q.field('a'), $q.field('b'));
             expect(f(x)).toBe(3);
@@ -959,7 +959,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseOr works for multiple values', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.field('a'),
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
@@ -968,7 +968,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseOr works for multiple value (by array)', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.field('a'),
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
@@ -977,7 +977,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseOr works for composite bitwise expressions', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.bitwiseNot('a'),
                 operand2 = $q.bitwiseAnd($q.field('a'), $q.field('b')),
                 operand3 = $q.bitwiseAnd($q.field('b'), $q.field('c')),
@@ -992,14 +992,14 @@ describe('DataQuery functions', function () {
         });
 
         it('$q.bitwiseXor should return a function', function () {
-            var x = 1,
+            const x = 1,
                 y = 2,
                 f = $q.bitwiseXor(x, y);
             expect(f).toEqual(jasmine.any(Function));
         });
 
         it('bitwiseXor of same value should return zero', function () {
-            var x = {a: 3, b: 3},
+            const x = {a: 3, b: 3},
                 y = {a: 4, b: 4},
                 f = $q.bitwiseXor($q.field('a'), $q.field('b'));
             expect(f(x)).toBe(0);
@@ -1007,7 +1007,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseXor works for multiple values', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.field('a'),
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
@@ -1016,7 +1016,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseXor works for multiple value (by array)', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.field('a'),
                 operand2 = $q.field('b'),
                 operand3 = $q.field('c'),
@@ -1025,7 +1025,7 @@ describe('DataQuery functions', function () {
         });
 
         it('bitwiseXor works for composite bitwise expressions', function () {
-            var x = {a: 1, b: 2, c: 3},
+            const x = {a: 1, b: 2, c: 3},
                 operand1 = $q.bitwiseNot('a'),
                 operand2 = $q.bitwiseAnd($q.field('b'), $q.field('c')),
                 operand3 = $q.bitwiseOr($q.field('b'), $q.field('c')),

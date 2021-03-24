@@ -188,21 +188,23 @@
         /**
          * Transforms a generic function into a sqlFun, returning a similar function with some additional methods
          * @function context
-         * @param {string} environmentVariable  Environment variable name
+         * @param {string|function} environmentVariable  Environment variable name
          * @return {sqlFun}
          * @example if environment = {a:1, b:2} and environmentFunction = function (env){return env.a}
          *   context(environmentFunction) applied to environment will return 1
          */
         function context(environmentVariable) {
-            const f = function (environment) {
+            const f = function (r, environment) {
                 if (environment === undefined) {
                     return undefined;
                 }
-                return environment[environmentVariable];
+                if (typeof(environmentVariable)==='string')return environment[environmentVariable];
+                if (typeof(environmentVariable)==='function')return environmentVariable(environment);
             };
             f.toSql = function(formatter, environment) {
                 //noinspection JSUnresolvedFunction
-                return formatter.quote(environment[environmentVariable]);
+                if (typeof(environmentVariable)==='string')return formatter.quote(environment[environmentVariable]);
+                if (typeof(environmentVariable)==='function')return formatter.quote(environmentVariable(environment));
             };
             f.as = function(fieldName){
                 f.fieldName= fieldName;
@@ -210,7 +212,9 @@
             };
             f.constant = false;
             f.toString = function() {
-                return 'context(' + environmentVariable + ')';
+                if (typeof(environmentVariable)==='string')return 'context(' + environmentVariable + ')';
+                if (typeof(environmentVariable)==='function')return 'context(' + environmentVariable(environment) + ')';
+
             };
 
             f.myName = 'context';
