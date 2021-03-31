@@ -1579,7 +1579,7 @@
          *  values can be an array or an object
          * @method mcmp
          * @param {string[]|object[]} keys
-         * @param {sqlFun[]|object[]} values
+         * @param {sqlFun[]|object[]|object} values
          * @param {string} [alias]
          * @return {sqlFun} f(r) = true if :
          *  case values is an array: r[keys[i]] = values[i] for each i=0..keys.length-1
