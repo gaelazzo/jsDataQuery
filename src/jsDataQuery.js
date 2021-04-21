@@ -873,7 +873,7 @@
                 };
 
             f.toString = function() {
-                return 'eq(' + toString(expr) + ',' + toString(expr2) + ')';
+                return '(' + toString(expr) + '=' + toString(expr2) + ')';
             };
 
             f.myName = 'eq';
@@ -1165,7 +1165,7 @@
                 return false;
             };
             f.toString = function () {
-                return '(' + joinString(a,'or') + ')';
+                return '(' + joinString(a,' OR ') + ')';
             };
 
             f.myName = 'or';
@@ -1568,7 +1568,7 @@
                 return true;
             };
             f.toString = function() {
-                return '(' + joinString(a,'and') + ')';
+                return '(' + joinString(a,' AND ') + ')';
             };
 
             f.myName = 'and';
@@ -2015,7 +2015,7 @@
         }
 
         function joinString(arr,separator) {
-            separator = separator|',';
+            separator = separator||',';
             return _.map(arr, function (value) {
                 return toString(value);
             }).join(separator) ;
