@@ -770,7 +770,7 @@
                 return _.uniq(res);
             };
             f.toString = function() {
-                return 'distinct(' + arrayToString(exprList) + ')';
+                return 'distinct(' + joinString(exprList) + ')';
             };
 
             f.myName = 'distinct';
@@ -813,7 +813,7 @@
                     return (_.indexOf(l, v) >= 0);
                 };
             f.toString = function() {
-                return 'isIn(' + expr.toString() + ',' + arrayToString(list) + ')';
+                return 'isIn(' + expr.toString() + ',' + joinString(list) + ')';
             };
 
             f.myName = 'isIn';
@@ -1165,7 +1165,7 @@
                 return false;
             };
             f.toString = function () {
-                return 'or(' + arrayToString(a) + ')';
+                return '(' + joinString(a,'or') + ')';
             };
 
             f.myName = 'or';
@@ -1206,7 +1206,7 @@
                 return null;
             };
             f.toString = function() {
-                return 'coalesce(' + arrayToString(a) + ')';
+                return 'coalesce(' + joinString(a) + ')';
             };
 
             f.myName = 'coalesce';
@@ -1568,7 +1568,7 @@
                 return true;
             };
             f.toString = function() {
-                return 'and(' + arrayToString(a) + ')';
+                return '(' + joinString(a,'and') + ')';
             };
 
             f.myName = 'and';
@@ -1851,7 +1851,7 @@
                 return sum;
             };
             f.toString = function() {
-                return 'add(' + arrayToString(a) + ')';
+                return '(' + joinString(a,'+') + ')';
             };
 
             f.myName = 'add';
@@ -1894,7 +1894,7 @@
                 return seq;
             };
             f.toString = function() {
-                return 'concat(' + arrayToString(values) + ')';
+                return 'concat(' + joinString(values) + ')';
             };
 
             f.myName = 'concat';
@@ -1999,7 +1999,7 @@
             };
 
             f.toString = function() {
-                return 'mul(' + arrayToString(values) + ')';
+                return '(' + joinString(values,'*') + ')';
             };
 
             f.myName = 'mul';
@@ -2013,11 +2013,19 @@
             };
             return toSqlFun(f, toSql);
         }
- 
-        function arrayToString(arr) {
+
+        function joinString(arr,separator) {
+            separator = separator|',';
+            return _.map(arr, function (value) {
+                return toString(value);
+            }).join(separator) ;
+        }
+
+        function arrayToString(arr,separator) {
+            separator = separator|',';
             return '[' + _.map(arr, function(value) {
                 return toString(value);
-            }).join(',') + ']';
+            }).join(separator) + ']';
         }
 
         /**
@@ -2117,7 +2125,7 @@
             };
 
             f.toString = function() {
-                return '(' + arrayToString(values) + ')';
+                return '(' + joinString(values) + ')';
             };
 
             f.myName = 'list';
@@ -2213,7 +2221,7 @@
             };
 
             f.toString = function() {
-                return '&(' + arrayToString(a) + ')';
+                return '(' + joinString(a,'&') + ')';
             };
 
             f.myName = 'bitwiseAnd';
@@ -2280,7 +2288,7 @@
             };
 
             f.toString = function() {
-                return '|(' + arrayToString(a) + ')';
+                return '(' + joinString(a,'|') + ')';
             };
 
             f.myName = 'bitwiseOr';
@@ -2347,7 +2355,7 @@
             };
 
             f.toString = function() {
-                return '^(' + arrayToString(a) + ')';
+                return '(' + joinString(a,'^') + ')';
             };
 
             f.myName = 'bitwiseXor';
