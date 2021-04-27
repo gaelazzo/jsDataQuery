@@ -2022,7 +2022,7 @@
         }
 
         function arrayToString(arr,separator) {
-            separator = separator|',';
+            separator = separator||',';
             return '[' + _.map(arr, function(value) {
                 return toString(value);
             }).join(separator) + ']';
