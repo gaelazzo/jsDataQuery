@@ -1034,4 +1034,23 @@ describe('DataQuery functions', function () {
         });
     });
 
+    it('A DataQuery should be usable with find', function () {
+        const p=[{a: 1, b: 2, c: 4},{a: 2, b: 3, c: 5},{a: 3, b: 4, c: 6},{a: 3, b: 5, c: 6}],
+        cmp_a_3 = $q.eq("a",3),
+        cmp_a_1 = $q.eq("a",1);
+        let res_1 = p.find(cmp_a_1);
+        let res_3 = p.find(cmp_a_3);
+        expect(res_1).toBe(p[0]);
+        expect(res_3).toBe(p[2]);
+    });
+
+    it('A DataQuery should be usable with filter', function () {
+        const p=[{a: 1, b: 2, c: 4},{a: 2, b: 3, c: 5},{a: 3, b: 4, c: 6},{a: 3, b: 5, c: 6}],
+            cmp_a_3 = $q.eq("a",3),
+            cmp_a_1 = $q.eq("a",1);
+        let res_1 = p.filter(cmp_a_1);
+        let res_3 = p.filter(cmp_a_3);
+        expect(res_1).toEqual([p[0]]);
+        expect(res_3).toEqual([p[2],p[3]]);
+    });
 });

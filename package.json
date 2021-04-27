@@ -17,7 +17,7 @@
     "grunt-karma": "^4.0.0",
     "jasmine-collection-matchers": "*",
     "jasmine-core": "^2.99.1",
-    "jasmine-node": "2.0.0-beta4",
+    "jasmine-node": "^3.0.0",
     "karma": "5.2.3",
     "karma-chrome-launcher": "3.1.0",
     "karma-jasmine": "4.0.1",
