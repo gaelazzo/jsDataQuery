@@ -445,6 +445,7 @@
             f.toString = function() {
                 return expr.toString()+" is not null";
             };
+
             f.myName = 'isNotNull';
             f.myArguments = arguments;
 
