@@ -406,6 +406,10 @@
                 return (res === null);
             };
 
+            f.toString = function() {
+                return expr.toString()+" is null";
+            };
+
             f.myName = 'isNull';
             f.myArguments = arguments;
 
@@ -438,6 +442,9 @@
                 return (res !== null);
             };
 
+            f.toString = function() {
+                return expr.toString()+" is not null";
+            };
             f.myName = 'isNotNull';
             f.myArguments = arguments;
 
