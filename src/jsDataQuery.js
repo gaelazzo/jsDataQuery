@@ -881,7 +881,7 @@
                 };
 
             f.toString = function() {
-                return '(' + toString(expr) + '=' + toString(expr2) + ')';
+                return '(' + toString(expr) + '==' + toString(expr2) + ')';
             };
 
             f.myName = 'eq';
@@ -919,7 +919,7 @@
                     return v1 !== v2;
                 };
             f.toString = function() {
-                return 'ne(' + expr.toString() + ',' + expr2.toString() + ')';
+                return  + expr.toString() + '!=' + expr2.toString() + ')';
             };
 
             f.myName = 'ne';
