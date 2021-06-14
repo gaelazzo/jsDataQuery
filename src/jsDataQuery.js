@@ -2109,7 +2109,8 @@
             if (!_.isArray(a)) {
                 a = [].slice.call(arguments);
             }
-
+            this.paramList = a;
+            
             f = function(r, environment) {
                 const outputList = [];
                 let someNull = false,
