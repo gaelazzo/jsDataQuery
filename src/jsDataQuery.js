@@ -1794,7 +1794,8 @@
      */
     function div(expr1, expr2) {
         const expr = autofield(expr1);
-        let f;
+        let a = [expr1,expr2],
+            f;
         f = function(r, environment) {
             let i,
                 prod = null,
