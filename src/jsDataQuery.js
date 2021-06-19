@@ -161,9 +161,8 @@
      */
     function toSqlFun(f, toSql) {
         let tryInvoke = f();
-        if (tryInvoke !== undefined) {
+        if (tryInvoke !== undefined && !Array.isArray(tryInvoke)) {
             //noinspection JSValidateTypes
-            if (Array.isArray(tryInvoke)) return  tryInvoke; //don't wrap an array in a constant
             f = constant(tryInvoke);
         } else {
             f.constant = false;
@@ -2194,7 +2193,7 @@
         };
         f.paramList = a;
         f.myName = 'list';
-        f.myArguments = arguments[0];
+        f.myArguments = arguments;
 
         const toSql = function (formatter, environment) {
             return formatter.list(_.map(a, function (v) {
