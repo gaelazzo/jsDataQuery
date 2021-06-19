@@ -161,8 +161,7 @@
      */
     function toSqlFun(f, toSql) {
         let tryInvoke = f();
-        if (tryInvoke !== undefined && !Array.isArray(tryInvoke)) {
-            //noinspection JSValidateTypes
+        if (tryInvoke !== undefined && !Array.isArray(tryInvoke)) {            //noinspection JSValidateTypes
             f = constant(tryInvoke);
         } else {
             f.constant = false;
@@ -224,7 +223,7 @@
                 return 'context(' + environmentVariable + ')';
             }
             if (typeof(environmentVariable)==='function'){
-                return 'context(' + environmentVariable.name + ')';
+                return environmentVariable.toString(); 'context(' + environmentVariable.name + ')';
             }
 
         };
@@ -686,7 +685,7 @@
                 return (v1 >= v2) && (v1 <= v3);
             };
         f.toString = function() {
-            return 'between(' + expr.toString() + ',' + min.toString() + ',' + max.toString() + ')';
+            return  expr.toString() + ' BETWEEN ' + min.toString() + ' AND ' + max.toString() ;
         };
 
         f.myName = 'between';
@@ -729,7 +728,7 @@
                 return (new RegExp(likeExpr.replace(new RegExp('%', 'g'), ".*").replace(new RegExp('_', 'g'), ".")).exec(v1) !== null);
             };
         f.toString = function() {
-            return 'like(' + expr.toString() + ',' + mask.toString() + ')';
+            return expr.toString() + ' LIKE ' + mask.toString();
         };
 
         f.myName = 'like';
