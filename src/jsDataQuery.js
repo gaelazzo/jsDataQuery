@@ -14,7 +14,7 @@
      * @return {String} escaped string
      */
     const myRegExpEscape = function (str) {
-        return str.replace(/([.*+?\^=!:${}()\|\[\]\/\\])/g, '\\$1'); // str.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+        return str.replaceAll(/([.*+?\^=!:${}()\|\[\]\/\\])/g, '\\$1'); // str.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
     };
 
 
@@ -163,6 +163,7 @@
         let tryInvoke = f();
         if (tryInvoke !== undefined) {
             //noinspection JSValidateTypes
+            if (Array.isArray(tryInvoke)) return  tryInvoke; //don't wrap an array in a constant
             f = constant(tryInvoke);
         } else {
             f.constant = false;
@@ -309,6 +310,15 @@
             return k;
         };
         f.toString = function() {
+            if (f.isTrue) {
+                return "(1=1)";
+            }
+            if (f.isFalse) {
+                return "(1=0)";
+            }
+            if (typeof k === 'string'){
+                return  "'"+k.replace(/'/g,"''")+"'";
+            }
             return k.toString();
         };
 
@@ -801,6 +811,7 @@
      * @returns {sqlFun}
      */
     function isIn(expr1, list) {
+        let a=list;
         const expr = autofield(expr1),
             f = function (r, environment) {
                 const v = calc(expr, r, environment);
@@ -822,7 +833,7 @@
                 return (_.indexOf(l, v) >= 0);
             };
         f.toString = function() {
-            return 'isIn(' + expr.toString() + ',' + joinString(list) + ')';
+            return  expr.toString()  + ' in (' + joinString(a) + ')';
         };
 
         f.myName = 'isIn';
@@ -830,7 +841,7 @@
 
         const toSql = function (formatter, environment) {
             //noinspection JSUnresolvedFunction
-            return formatter.isIn(expr, list, environment);
+            return formatter.isIn(expr, a, environment);
         };
         return toSqlFun(f, toSql);
     }
@@ -843,7 +854,39 @@
      * @returns {sqlFun}
      */
     function isNotIn(expr1, list) {
-        return not(isIn(expr1, list));
+        let a=list;
+        const expr = autofield(expr1),
+            f = function (r, environment) {
+                const v = calc(expr, r, environment);
+                let l;
+                if (v === undefined) {
+                    return undefined;
+                }
+                if (v === null) {
+                    return false;
+                }
+
+                l = calc(list, r, environment);
+                if (l === undefined) {
+                    return undefined;
+                }
+                if (l === null) {
+                    return false;
+                }
+                return (_.indexOf(l, v) < 0);
+            };
+        f.toString = function() {
+            return  expr.toString()  + ' not in (' + joinString(a) + ')';
+        };
+
+        f.myName = 'isNotIn';
+        f.myArguments = arguments;
+
+        const toSql = function (formatter, environment) {
+            //noinspection JSUnresolvedFunction
+            return formatter.isNotIn(expr, a, environment);
+        };
+        return toSqlFun(f, toSql);
     }
 
     function toString(o) {
@@ -965,7 +1008,7 @@
                 return v1 < v2;
             };
         f.toString = function() {
-            return 'lt(' + expr.toString() + ',' + expr2.toString() + ')';
+            return expr.toString() + '<' + expr2.toString() ;
         };
 
         f.myName = 'lt';
@@ -1010,7 +1053,7 @@
                 return v1 <= v2;
             };
         f.toString = function() {
-            return 'le(' + expr.toString() + ',' + expr2.toString() + ')';
+            return expr.toString() + '<=' + expr2.toString() ;
         };
 
         f.myName = 'le';
@@ -1055,7 +1098,7 @@
                 return v1 > v2;
             };
         f.toString = function() {
-            return 'gt(' + expr.toString() + ',' + expr2.toString() + ')';
+            return   expr.toString() + '>' + expr2.toString() ;
         };
 
         f.myName = 'gt';
@@ -1099,7 +1142,7 @@
             };
 
         f.toString = function() {
-            return 'ge(' + toString(expr) + ',' + toString(expr2) + ')';
+            return toString(expr) + '<=' + toString(expr2) ;
         };
 
         f.myName = 'ge';
@@ -1175,7 +1218,7 @@
             return false;
         };
         f.toString = function () {
-            return '(' + joinString(a,' OR ') + ')';
+            return joinString(a,' OR ');
         };
 
         f.myName = 'or';
@@ -1199,6 +1242,9 @@
     function coalesce(arr) {
         let a = arr,
             f;
+        if (a.myName=="list"){
+            a = a.paramList;
+        }
         if (!_.isArray(a)) {
             a = [].slice.call(arguments);
         }
@@ -1216,6 +1262,9 @@
             return null;
         };
         f.toString = function() {
+            if (a.length===2){
+                return 'isnull(' + joinString(a) + ')'
+            }
             return 'coalesce(' + joinString(a) + ')';
         };
 
@@ -1578,7 +1627,7 @@
             return true;
         };
         f.toString = function() {
-            return '(' + joinString(a,' AND ') + ')';
+            return joinString(a,' AND ') ;
         };
 
         f.myName = 'and';
@@ -1866,7 +1915,7 @@
             return sum;
         };
         f.toString = function() {
-            return '(' + joinString(a,'+') + ')';
+            return  joinString(a,'+') ;
         };
 
         f.myName = 'add';
@@ -2014,7 +2063,7 @@
         };
 
         f.toString = function() {
-            return '(' + joinString(values,'*') + ')';
+            return  joinString(values,'*') ;
         };
 
         f.myName = 'mul';
@@ -2116,7 +2165,7 @@
         if (!_.isArray(a)) {
             a = [].slice.call(arguments);
         }
-        this.paramList = a;
+
 
         f = function(r, environment) {
             const outputList = [];
@@ -2143,9 +2192,9 @@
         f.toString = function() {
             return '(' + joinString(values) + ')';
         };
-
+        f.paramList = a;
         f.myName = 'list';
-        f.myArguments = arguments;
+        f.myArguments = arguments[0];
 
         const toSql = function (formatter, environment) {
             return formatter.list(_.map(a, function (v) {
@@ -2304,7 +2353,7 @@
         };
 
         f.toString = function() {
-            return '(' + joinString(a,'|') + ')';
+            return  joinString(a,'|');
         };
 
         f.myName = 'bitwiseOr';
@@ -2371,7 +2420,7 @@
         };
 
         f.toString = function() {
-            return '(' + joinString(a,'^') + ')';
+            return joinString(a,'^');
         };
 
         f.myName = 'bitwiseXor';
