@@ -100,7 +100,7 @@
          * @param {Environment} env  is the environment into which the expression have to be evaluated
          * @return {string} //the sql representation of the expression
          */
-        this.toSql= function(sqlFormatter, env){
+        this.toSql= function(formatter, env){
 
         };
 
@@ -161,7 +161,11 @@
      */
     function toSqlFun(f, toSql) {
         let tryInvoke = f();
-        if (tryInvoke !== undefined && !Array.isArray(tryInvoke)) {            //noinspection JSValidateTypes
+        if (tryInvoke !== undefined) {
+            //noinspection JSValidateTypes
+            if (Array.isArray(tryInvoke)){
+                return  tryInvoke;
+            } //don't wrap an array in a constant
             f = constant(tryInvoke);
         } else {
             f.constant = false;
@@ -187,7 +191,7 @@
     /**
      * Transforms a generic function into a sqlFun, returning a similar function with some additional methods
      * @function context
-     * @param {string|function} environmentVariable  Environment variable name
+     * @param {string|function} environmentVariable  Environment variable path or function
      * @return {sqlFun}
      * @example if environment = {a:1, b:2} and environmentFunction = function (env){return env.a}
      *   context(environmentFunction) applied to environment will return 1
@@ -198,7 +202,7 @@
                 return undefined;
             }
             if (typeof(environmentVariable)==='string'){
-                return environment[environmentVariable];
+                return _.get(environment,environmentVariable);
             }
             if (typeof(environmentVariable)==='function'){
                 return environmentVariable(environment);
@@ -223,7 +227,7 @@
                 return 'context(' + environmentVariable + ')';
             }
             if (typeof(environmentVariable)==='function'){
-                return environmentVariable.toString(); 'context(' + environmentVariable.name + ')';
+                return environmentVariable.toString(); //'context(' + environmentVariable.name + ')';
             }
 
         };
@@ -1240,7 +1244,7 @@
     function coalesce(arr) {
         let a = arr,
             f;
-        if (a.myName=="list"){
+        if (a.myName==="list"){
             a = a.paramList;
         }
         if (!_.isArray(a)) {
@@ -1261,7 +1265,7 @@
         };
         f.toString = function() {
             if (a.length===2){
-                return 'isnull(' + joinString(a) + ')'
+                return 'isnull(' + joinString(a) + ')';
             }
             return 'coalesce(' + joinString(a) + ')';
         };

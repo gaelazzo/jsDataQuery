@@ -841,7 +841,7 @@ describe('DataQuery functions', function () {
         it('$q.list should return a function', function () {
             const x = 1,
                 f = $q.list(x);
-            expect(f).toEqual(jasmine.any(Function));
+            expect(f).toEqual([1]);
         });
 
         it('list should return an array with length equal to number of operands', function () {
