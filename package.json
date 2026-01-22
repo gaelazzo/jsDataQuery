@@ -18,7 +18,7 @@
     "jasmine-collection-matchers": "*",
     "jasmine-core": "^2.99.1",
     "jasmine-node": "^3.0.0",
-    "karma": "5.2.3",
+    "karma": "6.3.16",
     "karma-chrome-launcher": "3.1.0",
     "karma-jasmine": "4.0.1",
     "karma-jasmine-html-reporter": "1.5.4",
